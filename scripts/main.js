@@ -1,7 +1,7 @@
 const game = new Game();
 
 const clientUPS = 60;
-const serverUPS = 30;
+const serverUPS = 60;
 
 window.onload = function() {
     start();

@@ -145,7 +145,9 @@ class PlayState extends GameState {
                     direction: DIRECTION.RIGHT,
 
                     maxHealth: Number(entity.maxHealth),
-                    health: Number(entity.health)
+                    health: Number(entity.health),
+
+                    textureName: entity.skin
                 })
                 break;
             }

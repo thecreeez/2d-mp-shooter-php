@@ -1,6 +1,8 @@
 class Player extends Entity {
-    constructor({name, team, type, pos, state, direction, health, maxHealth}) {
+    constructor({name, team, type, pos, state, direction, health, maxHealth, textureName}) {
         super({type, pos, size:[80,80], state, direction, height: 2});
+
+        this.textureName = textureName;
 
         this.name = name;
         this.team = team;
@@ -22,35 +24,35 @@ class Player extends Entity {
         this.textures = {
             moving: {
                 right:[
-                    new Texture("entities",this.type,"moving","r0"),
-                    new Texture("entities",this.type,"moving","r1"),
-                    new Texture("entities",this.type,"moving","r2"),
-                    new Texture("entities",this.type,"moving","r3"),
-                    new Texture("entities",this.type,"moving","r4"),
-                    new Texture("entities",this.type,"moving","r5")
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r0"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r1"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r2"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r3"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r4"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r5")
                 ],
                 left:[
-                    new Texture("entities",this.type,"moving","l0"),
-                    new Texture("entities",this.type,"moving","l1"),
-                    new Texture("entities",this.type,"moving","l2"),
-                    new Texture("entities",this.type,"moving","l3"),
-                    new Texture("entities",this.type,"moving","l4"),
-                    new Texture("entities",this.type,"moving","l5")
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l0"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l1"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l2"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l3"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l4"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l5")
                 ]
             },
 
             idle: {
                 right: [
-                    new Texture("entities",this.type,"idle","r0"),
-                    new Texture("entities",this.type,"idle","r1"),
-                    new Texture("entities",this.type,"idle","r2"),
-                    new Texture("entities",this.type,"idle","r3")
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","r0"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","r1"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","r2"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","r3")
                 ],
                 left: [
-                    new Texture("entities",this.type,"idle","l0"),
-                    new Texture("entities",this.type,"idle","l1"),
-                    new Texture("entities",this.type,"idle","l2"),
-                    new Texture("entities",this.type,"idle","l3")
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","l0"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","l1"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","l2"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","l3")
                 ]
             }
         }
@@ -79,8 +81,49 @@ class Player extends Entity {
         super.update();
     }
 
+    setSkin(name) {
+        this.textureName = name;
+
+        this.textures = {
+            moving: {
+                right:[
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r0"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r1"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r2"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r3"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r4"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","r5")
+                ],
+                left:[
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l0"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l1"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l2"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l3"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l4"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"moving","l5")
+                ]
+            },
+
+            idle: {
+                right: [
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","r0"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","r1"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","r2"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","r3")
+                ],
+                left: [
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","l0"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","l1"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","l2"),
+                    new Texture("entities",`${this.type}_${this.textureName}`,"idle","l3")
+                ]
+            }
+        }
+    }
+
     render(func) {
         super.render(func);
+        console.log(this.textures[this.state][this.direction][this.animation.currentFrame].texture.currentSrc);
     }
 
     getTexture() {

@@ -180,6 +180,9 @@ class Server {
                 clientEntity.health = Number(serverEntity.health);
             }
 
+            if (clientEntity.textureName != serverEntity.skin)
+                clientEntity.setSkin(serverEntity.skin);
+
             if (clientEntity.timeToChangeState < 1) {
                 clientEntity.state = "idle";
             }
@@ -238,6 +241,9 @@ class Server {
     }
 
     addEntity(entity) {
+        if (!entity.skin && false)
+            entity.skin = `default`;
+
         game.state.addEntity(entity);
 
         if (entity.type == ENTITY_TYPE.PLAYER) {
