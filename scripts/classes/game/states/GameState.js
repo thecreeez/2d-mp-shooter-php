@@ -32,6 +32,8 @@ class GameState {
     }
 
     errorNotification(reason, onclick) {
+        console.log(reason);
+        console.error("creatingError");
         this.isErrorOpen = true;
 
         const title = new TextUI({

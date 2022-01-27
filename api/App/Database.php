@@ -78,7 +78,7 @@ class Database {
     }
 
     function getUserEntityByUser($field, $value) {
-        $query = 'SELECT entity_users.* FROM entity_users INNER JOIN users WHERE users.'.$field.' = "'.$value.'"';
+        $query = 'SELECT entity_users.* FROM entity_users INNER JOIN users WHERE users.'.$field.' = "'.$value.'" AND users.id = entity_users.users_id';
 
         return $this->db->query($query)->fetch();
     }
@@ -96,13 +96,13 @@ class Database {
     }
 
     function getUsersEntityAndUserBySession($field, $value) {
-        $query = 'SELECT entity_users.*, users.name, users.rating FROM entity_users INNER JOIN users, sessions WHERE users.id = entity_users.users_id AND sessions.'.$field.' = "'.$value.'"';
+        $query = 'SELECT entity_users.*, users.name, users.rating FROM entity_users INNER JOIN users, sessions WHERE users.id = entity_users.users_id AND entity_users.'.$field.' = "'.$value.'"';
 
         return $this->db->query($query);
     }
 
-    function addUserEntity($user, $sessions_id, $x = 0, $y = 0, $health = 100, $rotation = 0) {
-        $query = 'INSERT INTO entity_users (`users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`) VALUES ('.$user['id'].', '.$sessions_id.', '.$x.', '.$y.', '.$health.', '.$rotation.')';
+    function addUserEntity($user, $sessions_id, $skin = 'default', $x = 0, $y = 0, $health = 100, $rotation = 0) {
+        $query = 'INSERT INTO entity_users (`users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`, `skin`) VALUES ('.$user['id'].', '.$sessions_id.', '.$x.', '.$y.', '.$health.', '.$rotation.', "'.$skin.'")';
 
         return $this->db->query($query);
     }

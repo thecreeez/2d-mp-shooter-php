@@ -40,6 +40,9 @@ class PlayState extends GameState {
 
         const player = game.state.entities.get(game.playerName);
 
+        if (!player)
+            return game.setState("menu")
+
         const mouseVec = new Vector2(getWorldMousePos());
         const playerVec = new Vector2(player.pos);
         mouseVec.substract(playerVec);

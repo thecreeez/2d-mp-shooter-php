@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Янв 13 2022 г., 12:42
--- Версия сервера: 5.6.51
+-- Время создания: Янв 27 2022 г., 21:35
+-- Версия сервера: 5.7.33
 -- Версия PHP: 7.1.33
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -66,7 +66,29 @@ CREATE TABLE `entity_users` (
   `last_request` int(11) NOT NULL DEFAULT '0',
   `shot_cooldown` int(11) NOT NULL DEFAULT '0',
   `deaths` int(11) NOT NULL DEFAULT '0',
-  `kills` int(11) NOT NULL DEFAULT '0'
+  `kills` int(11) NOT NULL DEFAULT '0',
+  `skin` text COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `entity_users`
+--
+
+INSERT INTO `entity_users` (`id`, `users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`, `last_request`, `shot_cooldown`, `deaths`, `kills`, `skin`) VALUES
+(36, 15, 2, 28, 0, 100, 259, 0, 0, 0, 0, 'default'),
+(38, 16, 2, 24, 0, 100, 112, 0, 0, 0, 0, 'default');
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(11) NOT NULL,
+  `users_id` int(11) NOT NULL,
+  `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `time` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -110,7 +132,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `password`, `token`, `rating`) VALUES
-(14, 'admin', 'e80120b0d4c7824f211789831edbbbbb', '7c5b89a8305f19be8c33c10581dcb95b', 1000);
+(15, 'admin', 'e3ad1309246a9cec0347db54e10ad590', '4221ad26991b76f41d8a57c8295f4bc5', 1000),
+(16, 'thecreeez', '0736bf6e934a073d14c793514c542b16', 'c5a2b3ddb8aa80e2d1c3bcacafc3fa3d', 1000);
 
 --
 -- Индексы сохранённых таблиц
@@ -126,6 +149,12 @@ ALTER TABLE `entity_bullets`
 -- Индексы таблицы `entity_users`
 --
 ALTER TABLE `entity_users`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `messages`
+--
+ALTER TABLE `messages`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -154,7 +183,13 @@ ALTER TABLE `entity_bullets`
 -- AUTO_INCREMENT для таблицы `entity_users`
 --
 ALTER TABLE `entity_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+
+--
+-- AUTO_INCREMENT для таблицы `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT для таблицы `sessions`
@@ -166,7 +201,7 @@ ALTER TABLE `sessions`
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

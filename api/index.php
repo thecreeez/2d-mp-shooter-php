@@ -24,6 +24,8 @@ function router($params) {
         case 'control': return $app->control($params);
         case 'sendMessageOnChat': return $app->sendMessageOnChat($params);
 
+        case 'debug': return $app->debug($params);
+
         default: return $app->unexpectedMethod($params);
     }
 }

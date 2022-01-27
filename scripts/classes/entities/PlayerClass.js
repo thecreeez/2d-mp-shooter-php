@@ -123,7 +123,6 @@ class Player extends Entity {
 
     render(func) {
         super.render(func);
-        console.log(this.textures[this.state][this.direction][this.animation.currentFrame].texture.currentSrc);
     }
 
     getTexture() {

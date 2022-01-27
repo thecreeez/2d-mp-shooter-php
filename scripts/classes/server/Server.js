@@ -20,9 +20,10 @@ class Server {
                 console.log(`Успешный вход в аккаунт с ником ${name}`)
                 this.token = data.data.token;
                 localStorage.setItem('token', this.token);
+                break;
             }
             case STATUS.ERROR: {
-                game.state.errorNotification(data.reason, () => {game.state.hideError()});
+                game.state.errorNotification(data.data, () => {game.state.hideError()});
                 break;
             }
 
@@ -68,7 +69,7 @@ class Server {
 
         switch (data.status) {
             case STATUS.ERROR: {
-                game.state.errorNotification(data.reasons,() => {game.state.hideError()});
+                game.state.errorNotification(data.data,() => {game.state.hideError()});
                 break;
             }
         }
@@ -85,25 +86,25 @@ class Server {
                 const roomData = await this.request(`api/?method=updateGameData&token=${localStorage.getItem('token')}`);
                 this.time = data.data.time;
 
+                console.log(roomData);
+
                 switch (roomData.status) {
                     case STATUS.OK: {
                         this.createScene(data.data, roomData);
                         break;
                     }
                     case STATUS.ERROR: {
-                        if (roomData.state) {
-                            game.setState(roomData.state);
-                        }
-                        game.state.errorNotification(roomData.reason, () => {game.state.hideError()});
+                        game.state.errorNotification(roomData.data, () => {game.state.hideError()});
                         break;
                     }
+
                 }
-                
+                console.error(roomData);
                 break;
             }
 
             case STATUS.ERROR: {
-                game.state.errorNotification(data.reason, () => {game.state.hideError()});
+                game.state.errorNotification(data.data, () => {game.state.hideError()});
             }
         }
     }
@@ -128,7 +129,7 @@ class Server {
             }
 
             case STATUS.ERROR: {
-                game.state.errorNotification(data.reason, () => {game.state.hideError()});
+                game.state.errorNotification(data.data, () => {game.state.hideError()});
                 break;
             }
         }
@@ -288,7 +289,7 @@ class Server {
             }
             case STATUS.ERROR: {
                 game.state = new AuthState();
-                game.state.errorNotification(answer.reason, () => {game.state.hideError()});
+                game.state.errorNotification(answer.data, () => {game.state.hideError()});
                 break;
             }    
         }

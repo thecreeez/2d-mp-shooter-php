@@ -61,7 +61,7 @@ class Application {
         if ($this->userManager->getByName($name))
             return $this->answer->error('user with this name already exists.');
 
-        $token = $this->authManager->register($name,$pass);
+        $token = $this->authManager->register($name,$password);
         return $this->answer->success($token);
     }
 
@@ -119,7 +119,7 @@ class Application {
         $session = $this->sessionManager->getSession($sessions_id);
 
         if (!$session)
-            return $this->answer->success('Session '.$sessions_id.' isn\'t exist.');
+            return $this->answer->error('Session '.$sessions_id.' isn\'t exist.');
 
         //userE = userEntity (Сущность в сессии которая управляется игроком)
         $userE = $this->userManager->getUserEntity('token', $token);
@@ -130,7 +130,7 @@ class Application {
         );
 
         if (!$userE) {
-            $this->userManager->addUserEntity($user, $sessions_id);
+            $this->userManager->addUserEntity($user, $sessions_id, 'blue');
             return $this->answer->success($data);//'Successfully connected added entity.');
         }
 
@@ -181,6 +181,10 @@ class Application {
             'name' => $user['name']
         );
 
+        $data['debug'] = array(
+            'query' => 'SELECT entity_users.*, users.name, users.rating FROM entity_users INNER JOIN users, sessions WHERE users.id = entity_users.users_id AND sessions.'.'id'.' = "'.$userE['sessions_id'].'"'
+        );
+
         return $this->answer->success($data);
     }
 
@@ -206,6 +210,19 @@ class Application {
         return $this->answer->success(array(
             'time' => $time,
             'debug' => $debug
+        ));
+    }
+
+    public function debug($params) {
+        $token = $params['token'];
+
+        $data = $this->gameManager->getData($userE, $session);
+
+        $userE = $this->userManager->getUserEntity('token', $token);
+        return $this->answer->success(array(
+            'userE' => $userE,
+            'token' => $token,
+            'query' => 'SELECT entity_users.* FROM entity_users INNER JOIN users WHERE users.token = "'.$token.'"'
         ));
     }
 }
