@@ -72,7 +72,7 @@ class Player extends Entity {
         }
 
         this.state = "moving";
-        this.timeToChangeState = 2;
+        this.timeToChangeState = 10;
 
         super.setPos(pos);
     }

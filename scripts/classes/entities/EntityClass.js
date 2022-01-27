@@ -29,6 +29,7 @@ class Entity {
     update() {
         if (this.animation.frameStateCount >= this.animation.frameToChangeState && this.state != "idle") {
             //this.setState("idle");
+            //this.animation.frameStateCount = 0;
         }
     }
 

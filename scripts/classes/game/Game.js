@@ -181,6 +181,9 @@ class Game {
                 ctx.fillText(`frames: curr:${this.state.camera.entityToFollow.animation.currentFrame} framesToNext:${this.state.camera.entityToFollow.animation.frameCount}/${this.state.camera.entityToFollow.animation.framesToChange}`, 8,0 + size * stringNum);
 
                 stringNum++;
+                ctx.fillText(`state: frameStateCount:${this.state.camera.entityToFollow.animation.frameStateCount} frameToChangeState:${this.state.camera.entityToFollow.animation.frameToChangeState}`, 8,0 + size * stringNum);
+
+                stringNum++;
                 ctx.fillText(`state:${this.state.camera.entityToFollow.state}`, 8,0 + size *  stringNum);
 
                 stringNum++;
