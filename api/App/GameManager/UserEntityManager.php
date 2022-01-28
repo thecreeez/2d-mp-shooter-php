@@ -9,7 +9,7 @@ class UserEntityManager {
     }
 
     function get($sessions_id) {
-        $entities = $this->db->getUsersEntityAndUserBySession('id', $sessions_id);
+        $entities = $this->db->getUsersEntityAndUserBySession('sessions_id', $sessions_id);
         $entitiesArr = array();
 
 
@@ -28,7 +28,8 @@ class UserEntityManager {
                 'direction' => $direction,
                 'shot_cooldown' => $entity['shot_cooldown'],
                 'kills' => $entity['kills'],
-                'deaths' => $entity['deaths']
+                'deaths' => $entity['deaths'],
+                'skin' => $entity['skin']
             ));
         }
 
@@ -82,5 +83,9 @@ class UserEntityManager {
 
     function update($userE, $x, $y, $rotation, $shotCooldown) {
         return $this->db->updateUserEntity($userE['id'], $x, $y, $userE['health'], $rotation, $shotCooldown, $userE['deaths'], $userE['kills']);
+    }
+
+    function damagePlayer($userE, $damage) {
+        return $this->db->updateUserEntity($userE['id'], 'nc', 'nc', $userE['health']-$damage, 'nc', 'nc', 'nc', 'nc');
     }
 }

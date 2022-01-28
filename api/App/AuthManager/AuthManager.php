@@ -36,6 +36,10 @@ class AuthManager {
         $user = $this->db->getUser('name', $name);
 
         if ($user) {
+
+            if ($user['password'] != $hashedPassword)
+                return false;
+
             $token = $this->generateToken($user);
             $userData = array(
                 'token' => $token,

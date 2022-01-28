@@ -36,11 +36,10 @@ class Game {
         if (localStorage.getItem('token')) {
             const data = await this.server.auth();
 
-            console.log(data);
-
             if (data.status == STATUS.ERROR) 
                 return new AuthState();
             
+            console.log(`Успешный вход по заданному токену.`)
             game.playerName = data.data.name;
             game.rating = data.data.rating;
             this.state = new MenuState();

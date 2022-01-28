@@ -18,21 +18,20 @@ class AuthState extends GameState {
             text:"Войти", 
             onclick: async () => {
 
-            if (this.loginInput.value.length > 0 && this.passwordInput.value.length > 0) {
+                if (this.loginInput.value.length <= 0 && this.passwordInput.value.length <= 0)
+                    return this.errorNotification(`Логин или пароль не введен`, () => {this.hideError()});
+
                 const req = await game.server.login(this.loginInput.value,this.passwordInput.value);
-                
-                if (req) {
+
+                console.log(req);
+                if (req.status == STATUS.OK) {
                     game.playerName = req.data.name;
                     game.rating = req.data.rating;
-
                     game.state = new MenuState();
 
                     if (req.data.isPlaying)
                         game.state.errorNotification('Вы уже гдето играете', () => {game.state.hideError()})
                 }
-            } else {
-                this.errorNotification(`Логин или пароль не введен`, () => {this.hideError()});
-            }
         }}))
 
         this.items.set("btnRegister",new ButtonUI({

@@ -65,4 +65,8 @@ class GameManager {
             }
         }
     }
+
+    function damagePlayer($userE, $damage) {
+        $this->userEntityManager->damagePlayer($userE, $damage);
+    }
 }
