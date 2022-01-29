@@ -21,12 +21,14 @@ class UserEntityManager {
 
             array_push($entitiesArr, array(
                 'name' => $entity['name'],
+                'users_id' => $entity['users_id'],
                 'pos' => array($entity['x'],$entity['y']),
                 'type' => 'player',
                 'maxHealth' => 100,
                 'health' => $entity['health'],
                 'direction' => $direction,
                 'shot_cooldown' => $entity['shot_cooldown'],
+                'last_request' => $entity['last_request'],
                 'kills' => $entity['kills'],
                 'deaths' => $entity['deaths'],
                 'skin' => $entity['skin']
@@ -83,5 +85,13 @@ class UserEntityManager {
 
     function update($userE, $x, $y, $rotation, $shotCooldown) {
         return $this->db->updateUserEntity($userE['id'], $x, $y, $userE['health'], $rotation, $shotCooldown, $userE['deaths'], $userE['kills']);
+    }
+
+    function updateLastRequest($userE) {
+        return $this->db->setUserEntityProperty($userE, 'last_request', time());
+    }
+
+    function disconnectPlayerEntity($userE) {
+        return $this->db->removeUserEntity($userE);
     }
 }

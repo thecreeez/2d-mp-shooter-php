@@ -176,8 +176,14 @@ class Database {
         return $arr;
     }
 
+    function setUserEntityProperty($userE, $property, $value) {
+        $query = 'UPDATE entity_users SET '.$property.' = "'.$value.'" WHERE entity_users.users_id = '.$userE['users_id'];
+
+        return $this->db->query($query);
+    }
+
     function removeUserEntity($userE) {
-        $query = 'DELETE FROM entity_users WHERE `entity_users`.`id` = '.$userE['id'];
+        $query = 'DELETE FROM entity_users WHERE `entity_users`.`users_id` = '.$userE['users_id'];
 
         return $this->db->query($query);
     }
@@ -189,9 +195,15 @@ class Database {
     }
     
     function addBulletEntity($userE, $x, $y, $direction) {
-        $speed = 5;
+        $speed = 10;
         $damage = 5;
         $query = 'INSERT INTO entity_bullets (`uuid`, `sessions_id`, `users_id`, `x`, `y`, `direction`, `damage`, `speed`) VALUES ("'.uniqid().'",'.$userE['sessions_id'].','.$userE['users_id'].','.$x.','.$y.','.$direction.','.$damage.','.$speed.')';
+
+        return $this->db->query($query);
+    }
+
+    function setBulletPos($bulletId, $pos) {
+        $query = 'UPDATE entity_bullets SET x = '.$pos[0].', y = '.$pos[1].' WHERE entity_bullets.id = '.$bulletId;
 
         return $this->db->query($query);
     }
