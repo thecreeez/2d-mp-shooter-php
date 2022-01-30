@@ -243,4 +243,13 @@ class Application {
             'query' => 'SELECT entity_users.* FROM entity_users INNER JOIN users WHERE users.token = "'.$token.'"'
         ));
     }
+
+    public function sendMessageOnChat($params) {
+        $token = $params['token'];
+        $content = $params['content'];
+
+        $userE = $this->userManager->getUserEntity('token',$token);
+
+        return $this->gameManager->sendMessage($userE, $content);
+    }
 }

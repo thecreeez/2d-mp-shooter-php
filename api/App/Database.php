@@ -194,8 +194,8 @@ class Database {
         return $this->db->query($query);
     }
 
-    function getBulletEntitiesBySession($sessions_id) {
-        $query = 'SELECT * FROM entity_bullets WHERE `entity_bullets`.`sessions_id` = '.$sessions_id;
+    function getBulletEntitiesBySessionOrderByExpression($sessions_id, $expression) {
+        $query = 'SELECT * FROM entity_bullets WHERE `entity_bullets`.`sessions_id` = '.$sessions_id.' ORDER BY ('.$expression.') LIMIT 70';
 
         return $this->db->query($query);
     }
@@ -240,6 +240,18 @@ class Database {
 
     function getStatsByUserId($userId) {
         $query = 'SELECT * FROM stats_users WHERE stats_users.users_id = '.$userId;
+
+        return $this->db->query($query);
+    }
+
+    function addMessage($sessions_id, $users_id, $content, $time) {
+        $query = 'INSERT INTO messages (sessions_id, users_id, content, time) VALUES ('.$sessions_id.','.$users_id.',"'.$content.'",'.$time.')';
+
+        return $this->db->query($query);
+    }
+
+    function getMessagesBySession($sessions_id) {
+        $query = 'SELECT messages.*, users.name FROM messages INNER JOIN users WHERE users.id = messages.users_id AND messages.sessions_id = '.$sessions_id;
 
         return $this->db->query($query);
     }

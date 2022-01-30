@@ -6,7 +6,7 @@ class BulletEntityManager {
     }
 
     function get($userE) {
-        $entities = $this->db->getBulletEntitiesBySession($userE['sessions_id']);
+        $entities = $this->db->getBulletEntitiesBySessionOrderByExpression($userE['sessions_id'], 'ABS(x-'.$userE['x'].')+ABS(y-'.$userE['y'].')');
         $entitiesArr = array();
 
         foreach ($entities as $entity) {

@@ -40,7 +40,7 @@ class GameManager {
         $this->userEntityManager->updateLastRequest($userE);
 
         $data['entities'] = array_merge($usersEntities, $bulletsEntities);
-        $data['chat'] = array();
+        $data['chat'] = $this->chatManager->get($userE['sessions_id']);
         $data['events'] = array();
 
         return $data;
@@ -48,9 +48,25 @@ class GameManager {
 
     function control($userE, $moveAxis, $rotation, $isShot) {
         $controlData = $this->userEntityManager->control($userE, $moveAxis, $rotation, $isShot);
-        
-        if ($controlData['isShot'])
-            $controlData['bulletData'] = $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $controlData['rotation']);
+
+        if ($controlData['isShot']) {
+            $shotType = 'shotgun';
+
+
+            switch ($shotType) {
+                case 'default': {
+                    $controlData['bulletData'] = $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $controlData['rotation']);
+                    break;
+                }
+                case 'shotgun': {
+                    $shells = rand(3,5);
+
+                    for ($i = 0; $i < $shells; $i++)
+                        $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $controlData['rotation'] + rand(-30,30));
+                    break;
+                }
+            }
+        }
             
         return $controlData;
     }
@@ -91,11 +107,12 @@ class GameManager {
                 if ($collision['second']['type'] == 'bullet')
                     $this->bulletEntityManager->killBullet($collision['second']);
 
+                    /*
                 if ($collision['first']['type'] == 'bullet' && $collision['second']['type'] == 'player')
                     $this->userEntityManager->damagePlayer($collision['second'], $collision['first']);
 
                 if ($collision['first']['type'] == 'player' && $collision['second']['type'] == 'bullet')
-                    $this->userEntityManager->damagePlayer($collision['first'], $collision['second']);
+                    $this->userEntityManager->damagePlayer($collision['first'], $collision['second']);*/
             }
         }
 
@@ -104,5 +121,9 @@ class GameManager {
 
     function createStats($user) {
         return $this->userEntityManager->createStats($user);
+    }
+
+    function sendMessage($userE, $content) {
+        return $this->chatManager->createMessage($userE['sessions_id'], $userE['users_id'], $content);
     }
 }

@@ -117,7 +117,7 @@ class Chat {
         data.team = "white"
         this.messages.unshift(
             new ChatMessage({
-                author: data.sender,
+                author: data.name,
                 content: data.content,
                 id: Number(data.id),
                 team: data.team,
