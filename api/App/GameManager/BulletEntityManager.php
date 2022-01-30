@@ -30,19 +30,11 @@ class BulletEntityManager {
         return $this->db->addBulletEntity($userE, $x, $y, $rotation);
     }
 
-    function updateBullet($bulletE, $mapSize, $ups) {
-        $bulletPos = $this->movingBullet($bulletE, $ups);
+    function updateBullets($sessions_id, $mapSize, $ups) {
+        $this->db->setBulletsPosBySessionId($sessions_id, 'x + (speed * COS(direction * PI() / 180)) / '.$ups, 'y + (speed * SIN(direction * PI() / 180)) / '.$ups);
+        $this->db->deleteBulletsByPosByExpressionSessionId($sessions_id, 'x < '.(-$mapSize[0] / 2).' OR x > '.($mapSize[0] / 2).' OR y < '.(-$mapSize[1] / 2).' OR y > '.($mapSize[1] / 2));
 
-        return $bulletPos;
-    }
-
-    function movingBullet($bulletE, $ups) {
-        $newPos = array(
-            $bulletE['pos'][0] + ($bulletE['speed'] * cos($bulletE['direction'] * pi() / 180) / $ups),
-            $bulletE['pos'][1] + ($bulletE['speed'] * sin($bulletE['direction'] * pi() / 180) / $ups)
-        );
-
-        return $this->db->setBulletPos($bulletE['id'], $newPos);
+        
     }
 
     function killBullet($bulletE) {

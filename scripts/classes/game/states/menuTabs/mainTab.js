@@ -23,10 +23,19 @@ class MainTab {
 
         this.items.set("topPlayersButton", new ButtonUI({
             pos:[canvas.width / 2 - 100, 160],
-            size:[200,20],
+            size:[95,20],
             text:"Топ игроков",
             onclick: () => {
                 game.state.showTopPlayers();
+            }
+        }))
+
+        this.items.set("statsButton", new ButtonUI({
+            pos:[canvas.width / 2 + 5, 160],
+            size:[95,20],
+            text:"Статистика",
+            onclick: () => {
+                game.state.showStats();
             }
         }))
 

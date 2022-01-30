@@ -288,8 +288,11 @@ class Server {
                 break;
             }
             case STATUS.ERROR: {
-                game.state = new AuthState();
-                game.state.errorNotification(answer.data, () => {game.state.hideError()});
+                game.getState();
+                setTimeout(() => {
+                    game.state.errorNotification(answer.data, () => {game.state.hideError()});
+                }, 1000);
+                
                 break;
             }    
         }
@@ -307,6 +310,16 @@ class Server {
 
     async getTopPlayers() {
         const data = await this.request(`api?method=getTopPlayers&token=${this.token}`);
+
+        switch (data.status) {
+            case STATUS.OK: {
+                return data.data;
+            }
+        }
+    }
+
+    async getStats() {
+        const data = await this.request(`api?method=getStats&token=${this.token}`);
 
         switch (data.status) {
             case STATUS.OK: {

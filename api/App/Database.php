@@ -208,8 +208,14 @@ class Database {
         return $this->db->query($query);
     }
 
-    function setBulletPos($bulletId, $pos) {
-        $query = 'UPDATE entity_bullets SET x = '.$pos[0].', y = '.$pos[1].' WHERE entity_bullets.id = '.$bulletId;
+    function setBulletsPosBySessionId($sessions_id, $x, $y) {
+        $query = 'UPDATE entity_bullets SET x = '.$x.', y = '.$y.' WHERE sessions_id = '.$sessions_id;
+
+        return $this->db->query($query);
+    }
+
+    function deleteBulletsByPosByExpressionSessionId($sessions_id, $expression) {
+        $query = 'DELETE FROM entity_bullets WHERE sessions_id = '.$sessions_id.' AND ('.$expression.')';
 
         return $this->db->query($query);
     }
@@ -228,6 +234,12 @@ class Database {
 
     function setStatValue($usersId, $statName, $value) {
         $query = 'UPDATE stats_users SET '.$statName.' = '.$value.' WHERE stats_users.users_id = '.$usersId;
+
+        return $this->db->query($query);
+    }
+
+    function getStatsByUserId($userId) {
+        $query = 'SELECT * FROM stats_users WHERE stats_users.users_id = '.$userId;
 
         return $this->db->query($query);
     }

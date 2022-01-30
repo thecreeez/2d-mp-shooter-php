@@ -111,6 +111,20 @@ class Application {
         return $this->answer->success($this->sessionManager->getAll());
     }
 
+    public function getStats($params) {
+
+        $token = $params['token'];
+
+        $user = $this->userManager->getByToken($token);
+
+        if (!$user)
+            return $this->answer->error('token isn\'t valid.');
+
+        $data = $this->userManager->getStats($user);
+
+        return $this->answer->success($data);
+    }
+
     public function connect($params) {
         $token = $params['token'];
         $sessions_id = $params['session'];

@@ -101,8 +101,8 @@ class UserEntityManager {
         $this->statManager->addStat($userE['users_id'], 'global_kills', 'kills');
         $this->statManager->addStat($userE['users_id'], 'global_deaths', 'deaths');
 
-        $this->statManager->setStat($userE['users_id'], 'kills', 0);
-        $this->statManager->setStat($userE['users_id'], 'deaths', 0);
+        $this->statManager->addStat($userE['users_id'], 'kills', '(-kills)');
+        $this->statManager->addStat($userE['users_id'], 'deaths', '(-deaths)');
 
         return $this->db->removeUserEntity($userE);
     }

@@ -74,23 +74,29 @@ class GameManager {
                 $this->userEntityManager->disconnectPlayerEntity($userEntity);
         }
 
-        foreach($bulletsEntities as $bulletEntity)
-            $lastBulletUps = $this->bulletEntityManager->updateBullet($bulletEntity, $this->mapSize, $this->ups);
+        $this->bulletEntityManager->updateBullets($session['id'], $this->mapSize, $this->ups);
+
+        //foreach($bulletsEntities as $bulletEntity)
+        //    $lastBulletUps = $this->bulletEntityManager->updateBullet($bulletEntity, $this->mapSize, $this->ups);
 
         $collisions = $this->collisionManager->get($usersEntities, $bulletsEntities);
 
         foreach ($collisions as $collision) {
-            if ($collision['first']['type'] == 'bullet')
-                $this->bulletEntityManager->killBullet($collision['first']);
+            if ($collision['first']['users_id'] == $collision['second']['users_id']) {
 
-            if ($collision['second']['type'] == 'bullet')
-                $this->bulletEntityManager->killBullet($collision['second']);
+            } else {
+                if ($collision['first']['type'] == 'bullet')
+                    $this->bulletEntityManager->killBullet($collision['first']);
 
-            if ($collision['first']['type'] == 'bullet' && $collision['second']['type'] == 'player')
-                $this->userEntityManager->damagePlayer($collision['second'], $collision['first']);
+                if ($collision['second']['type'] == 'bullet')
+                    $this->bulletEntityManager->killBullet($collision['second']);
 
-            if ($collision['first']['type'] == 'player' && $collision['second']['type'] == 'bullet')
-                $this->userEntityManager->damagePlayer($collision['first'], $collision['second']);
+                if ($collision['first']['type'] == 'bullet' && $collision['second']['type'] == 'player')
+                    $this->userEntityManager->damagePlayer($collision['second'], $collision['first']);
+
+                if ($collision['first']['type'] == 'player' && $collision['second']['type'] == 'bullet')
+                    $this->userEntityManager->damagePlayer($collision['first'], $collision['second']);
+            }
         }
 
         return $lastBulletUps;

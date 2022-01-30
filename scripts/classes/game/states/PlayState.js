@@ -57,7 +57,7 @@ class PlayState extends GameState {
             data.move = {x: move.x, y: move.y};
             data.isControlled = true;
         }
-        if (move.isShooting && game.state.cooldowns.shot < 1) {
+        if (move.isShooting && ((game.state.cooldowns.shot < 1) || true)) {
             data.isShot = true;
             this.cooldowns.shot = 15;
             data.isControlled = true;

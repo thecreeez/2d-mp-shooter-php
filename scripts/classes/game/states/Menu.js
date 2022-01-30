@@ -49,6 +49,12 @@ class MenuState extends GameState {
         this.setTab(new TopTab(topPlayersFromServer))
     }
 
+    async showStats() {
+        const statsFromServer = await game.server.getStats();
+
+        this.setTab(new StatsTab(statsFromServer))
+    }
+
     startSearchGame() {
         this.isGameSearching = true;
         this.gameSearch = setInterval(() => {

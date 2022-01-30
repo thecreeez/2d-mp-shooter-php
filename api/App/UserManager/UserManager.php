@@ -28,4 +28,8 @@ class UserManager {
     function removeUserEntity($userE) {
         return $this->db->removeUserEntity($userE);
     }
+
+    function getStats($user) {
+        return $this->db->getStatsByUserId($user['id'])->fetch();
+    }
 }
