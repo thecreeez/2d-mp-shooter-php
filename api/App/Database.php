@@ -96,7 +96,7 @@ class Database {
     }
 
     function getUsersEntityAndUserBySession($field, $value) {
-        $query = 'SELECT entity_users.*, users.name, users.rating FROM entity_users INNER JOIN users, sessions WHERE users.id = entity_users.users_id AND entity_users.'.$field.' = "'.$value.'"';
+        $query = 'SELECT entity_users.*, users.name, users.rating FROM entity_users INNER JOIN users WHERE users.id = entity_users.users_id AND entity_users.'.$field.' = "'.$value.'"';
 
         return $this->db->query($query);
     }
@@ -176,6 +176,12 @@ class Database {
         return $arr;
     }
 
+    function removeBulletEntity($bulletId) {
+        $query = 'DELETE FROM entity_bullets WHERE entity_bullets.id = '.$bulletId;
+
+        return $this->db->query($query);
+    }
+
     function setUserEntityProperty($userE, $property, $value) {
         $query = 'UPDATE entity_users SET '.$property.' = "'.$value.'" WHERE entity_users.users_id = '.$userE['users_id'];
 
@@ -195,8 +201,8 @@ class Database {
     }
     
     function addBulletEntity($userE, $x, $y, $direction) {
-        $speed = 10;
-        $damage = 5;
+        $speed = 400;
+        $damage = 50;
         $query = 'INSERT INTO entity_bullets (`uuid`, `sessions_id`, `users_id`, `x`, `y`, `direction`, `damage`, `speed`) VALUES ("'.uniqid().'",'.$userE['sessions_id'].','.$userE['users_id'].','.$x.','.$y.','.$direction.','.$damage.','.$speed.')';
 
         return $this->db->query($query);
@@ -204,6 +210,24 @@ class Database {
 
     function setBulletPos($bulletId, $pos) {
         $query = 'UPDATE entity_bullets SET x = '.$pos[0].', y = '.$pos[1].' WHERE entity_bullets.id = '.$bulletId;
+
+        return $this->db->query($query);
+    }
+
+    function addStat($userId) {
+        $query = 'INSERT INTO stats_users (users_id) VALUES ('.$userId.')';
+
+        return $this->db->query($query);
+    }
+
+    function addStatValue($usersId, $statName, $value) {
+        $query = 'UPDATE stats_users SET '.$statName.' = '.$statName.'+'.$value.' WHERE stats_users.users_id = '.$usersId;
+
+        return $this->db->query($query);
+    }
+
+    function setStatValue($usersId, $statName, $value) {
+        $query = 'UPDATE stats_users SET '.$statName.' = '.$value.' WHERE stats_users.users_id = '.$usersId;
 
         return $this->db->query($query);
     }

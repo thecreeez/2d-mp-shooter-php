@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Янв 27 2022 г., 21:35
--- Версия сервера: 5.7.33
+-- Время создания: Янв 30 2022 г., 04:01
+-- Версия сервера: 5.6.51
 -- Версия PHP: 7.1.33
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -44,10 +44,8 @@ CREATE TABLE `entity_bullets` (
 --
 
 INSERT INTO `entity_bullets` (`id`, `uuid`, `sessions_id`, `users_id`, `x`, `y`, `direction`, `damage`, `speed`) VALUES
-(77, '61dff35561610', 1, 14, 18, -26, 540, 5, 5),
-(78, '61dff35666404', 1, 14, -74, -26, 171, 5, 5),
-(79, '61dff3570a981', 1, 14, -122, -26, 171, 5, 5),
-(80, '61dff367e1b8f', 1, 14, -218, 98, 173, 5, 5);
+(374, '61f5e1a9cef8c', 1, 25, 47760, -4794, 355, 5, 400),
+(377, '61f5e22e92128', 1, 26, -10616, -535, 184, 50, 400);
 
 -- --------------------------------------------------------
 
@@ -75,8 +73,7 @@ CREATE TABLE `entity_users` (
 --
 
 INSERT INTO `entity_users` (`id`, `users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`, `last_request`, `shot_cooldown`, `deaths`, `kills`, `skin`) VALUES
-(36, 15, 2, 28, 0, 100, 259, 0, 0, 0, 0, 'default'),
-(38, 16, 2, 24, 0, 100, 112, 0, 0, 0, 0, 'default');
+(69, 26, 1, 84, 0, 100, 312, 1643504339, 0, 0, 0, 'default');
 
 -- --------------------------------------------------------
 
@@ -110,8 +107,31 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `max_players`, `name`, `hello_message`, `last_update`) VALUES
-(1, 10, 'beta-room', 'hi kek', 0),
+(1, 50, 'beta-room', 'hi kek', 0),
 (2, 10, 'session_shit', 't', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `stats_users`
+--
+
+CREATE TABLE `stats_users` (
+  `id` int(11) NOT NULL,
+  `users_id` int(11) NOT NULL,
+  `kills` int(11) NOT NULL,
+  `deaths` int(11) NOT NULL,
+  `sessions_played` int(11) NOT NULL,
+  `global_kills` int(11) NOT NULL,
+  `global_deaths` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `stats_users`
+--
+
+INSERT INTO `stats_users` (`id`, `users_id`, `kills`, `deaths`, `sessions_played`, `global_kills`, `global_deaths`) VALUES
+(4, 26, 1, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -132,8 +152,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `password`, `token`, `rating`) VALUES
-(15, 'admin', 'e3ad1309246a9cec0347db54e10ad590', '4221ad26991b76f41d8a57c8295f4bc5', 1000),
-(16, 'thecreeez', '0736bf6e934a073d14c793514c542b16', 'c5a2b3ddb8aa80e2d1c3bcacafc3fa3d', 1000);
+(26, 'admin', '0736bf6e934a073d14c793514c542b16', 'b20ecd1b60f9560b4bf964c8ad71084c', 1000);
 
 --
 -- Индексы сохранённых таблиц
@@ -164,6 +183,12 @@ ALTER TABLE `sessions`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Индексы таблицы `stats_users`
+--
+ALTER TABLE `stats_users`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Индексы таблицы `users`
 --
 ALTER TABLE `users`
@@ -177,13 +202,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `entity_bullets`
 --
 ALTER TABLE `entity_bullets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=378;
 
 --
 -- AUTO_INCREMENT для таблицы `entity_users`
 --
 ALTER TABLE `entity_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
 
 --
 -- AUTO_INCREMENT для таблицы `messages`
@@ -198,10 +223,16 @@ ALTER TABLE `sessions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT для таблицы `stats_users`
+--
+ALTER TABLE `stats_users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -13,6 +13,7 @@ class BulletEntityManager {
             array_push($entitiesArr, array(
                 'name' => $entity['uuid'],
                 'id' => $entity['id'],
+                'users_id' => $entity['users_id'],
                 'pos' => array($entity['x'],$entity['y']),
                 'type' => 'bullet',
                 'direction' => $entity['direction'],
@@ -31,16 +32,20 @@ class BulletEntityManager {
 
     function updateBullet($bulletE, $mapSize, $ups) {
         $bulletPos = $this->movingBullet($bulletE, $ups);
+
+        return $bulletPos;
     }
 
     function movingBullet($bulletE, $ups) {
         $newPos = array(
-            $bulletE['pos'][0] + ($bulletE['speed'] * cos($bulletE['direction'] * pi() / 180)) / $ups,
-            $bulletE['pos'][1] + ($bulletE['speed'] * sin($bulletE['direction'] * pi() / 180)) / $ups
+            $bulletE['pos'][0] + ($bulletE['speed'] * cos($bulletE['direction'] * pi() / 180) / $ups),
+            $bulletE['pos'][1] + ($bulletE['speed'] * sin($bulletE['direction'] * pi() / 180) / $ups)
         );
 
-        $this->db->setBulletPos($bulletE['id'], $newPos);
+        return $this->db->setBulletPos($bulletE['id'], $newPos);
+    }
 
-        return $newPos;
+    function killBullet($bulletE) {
+        return $this->db->removeBulletEntity($bulletE['id']);
     }
 }

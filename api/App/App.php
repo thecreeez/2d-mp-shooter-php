@@ -61,8 +61,12 @@ class Application {
         if ($this->userManager->getByName($name))
             return $this->answer->error('user with this name already exists.');
 
-        $token = $this->authManager->register($name,$password);
-        return $this->answer->success($token);
+        $data = $this->authManager->register($name,$password);
+
+        $user = $this->userManager->getByName($name);
+        $data['additional'] = $this->gameManager->createStats($user);
+
+        return $this->answer->success($data);
     }
 
     public function login($params) {

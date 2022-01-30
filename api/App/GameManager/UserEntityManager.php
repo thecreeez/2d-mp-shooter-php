@@ -1,11 +1,15 @@
 <?php
 
+require_once('App/GameManager/StatManager.php');
+
 class UserEntityManager {
     function __construct($db) {
         $this->playerSpeed = 4;
         $this->shotCooldown = 5;
 
         $this->db = $db;
+
+        $this->statManager = new StatManager($db);
     }
 
     function get($sessions_id) {
@@ -92,6 +96,27 @@ class UserEntityManager {
     }
 
     function disconnectPlayerEntity($userE) {
+        $this->statManager->addStat($userE['users_id'], 'sessions_played', 1);
+
+        $this->statManager->addStat($userE['users_id'], 'global_kills', 'kills');
+        $this->statManager->addStat($userE['users_id'], 'global_deaths', 'deaths');
+
+        $this->statManager->setStat($userE['users_id'], 'kills', 0);
+        $this->statManager->setStat($userE['users_id'], 'deaths', 0);
+
         return $this->db->removeUserEntity($userE);
+    }
+
+    function damagePlayer($userE, $reason) {
+        if ($userE['health'] - $reason['damage'] > 0)
+            return $this->db->setUserEntityProperty($userE, 'health', $userE['health'] - $reason['damage']);
+
+        $this->statManager->addStat($reason['users_id'], 'kills', 1);
+        $this->statManager->addStat($userE['users_id'], 'deaths', 1);
+        $this->disconnectPlayerEntity($userE);
+    }
+
+    function createStats($user) {
+        return $this->statManager->createStats($user);
     }
 }

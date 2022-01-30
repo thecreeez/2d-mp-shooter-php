@@ -12,18 +12,37 @@ class CollisionManager {
     $collisions = array();
     $entities = array_merge($usersEntities, $bulletsEntities);
 
+    $mainCurr = 0;
+
+    $string = 'Started... ';
+
     foreach ($entities as $firstEntity) {
-      foreach ($entities as $secondEntity) {
+      $string = $string.'Current mainEntity is '.$firstEntity['name'].'. Started finding other entities.';
+      for ($i = $mainCurr + 1; $i < count($entities); $i++) {
+        $string = $string.' Current id secondEntity = '.$i.'... ';
+        $secondEntity = $entities[$i];
         if ($firstEntity != $secondEntity)
           if ($this->isCollision($firstEntity, $secondEntity))
-            array_push($collisions, array($firstEntity, $secondEntity));
+            array_push($collisions, array(
+              'first' => $firstEntity,
+              'second' => $secondEntity
+            ));
       }
+
+      $mainCurr++;
     }
 
     return $collisions;
   }
 
   private function isCollision($firstEntity, $secondEntity) {
+    if (($firstEntity['type'] == 'player' && $secondEntity['type'] == 'bullet') || 
+        ($firstEntity['type'] == 'bullet' && $secondEntity['type'] == 'player')) 
+    {
+      if ($firstEntity['users_id'] == $secondEntity['users_id'])
+        return false;
+    }
+
     $leftEntity = null;
     $rightEntity = null;
 
@@ -31,10 +50,10 @@ class CollisionManager {
 
     if ($firstEntity['pos'][0] < $secondEntity['pos'][0]) {
       $leftEntity = $firstEntity;
-      $rightEnttiy = $secondEntity;
+      $rightEntity = $secondEntity;
     } else if ($firstEntity['pos'][0] > $secondEntity['pos'][0]) {
       $leftEntity = $secondEntity;
-      $rightEnttiy = $firstEntity;
+      $rightEntity = $firstEntity;
     } else {
       $isCollisionX = true;
     }
