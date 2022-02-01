@@ -27,10 +27,14 @@ class CooldownBar {
 }
 
 render() {
-    ctx.fillStyle = `rgba(40,40,40,1.0)`;
+    if (this.bar.getInPercent() < 100)
+      ctx.fillStyle = `rgba(40,40,40,1.0)`;
+    else
+      ctx.fillStyle = `green`;
+    
     ctx.fillRect(canvas.width / 2 + 300 - 5, canvas.height - 85 - 5, 75 + 10, 75 + 10);
 
-    ctx.fillStyle = `rgba(255,255,255,1.0)`;
+    ctx.fillStyle = `rgba(80,80,80,1.0)`;
     ctx.fillRect(canvas.width / 2 + 300, canvas.height - 85, 75, 75);
     this.texture.render();
 

@@ -7,8 +7,22 @@ class AuthState extends GameState {
 
         this.items = new Map();
 
-        this.loginInput = new TextInputUI([canvas.width / 2 - 100,100],[200,20],20,"никнейм",false,[' ']);
-        this.passwordInput = new TextInputUI([canvas.width / 2 - 100,130],[200,20],20,"пароль",true,[' ']);
+        this.loginInput = new TextInputUI({
+            pos: [canvas.width / 2 - 100,100],
+            size:[200,20],
+            maxSymbols:20,
+            text:"никнейм",
+            isHideInside: false,
+            blockedSymbols: [' ']
+        });
+        this.passwordInput = new TextInputUI({
+            pos:[canvas.width / 2 - 100,130],
+            size:[200,20],
+            maxSymbols:20,
+            text:"пароль",
+            isHideInside:true,
+            blockedSymbols:[' ']
+        });
 
         this.items.set("login", this.loginInput)
         this.items.set("password",this.passwordInput)
@@ -84,7 +98,6 @@ class AuthState extends GameState {
     }
 
     keyboardPress(code,key) {
-
         this.items.forEach((item) => {
             if (item.isSelected) {
                 if (code == 'Backspace') {

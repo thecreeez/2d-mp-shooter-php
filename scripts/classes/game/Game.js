@@ -26,8 +26,6 @@ class Game {
             pingCounter: []
         }
 
-        this.isDebug = true;
-
         this.state = new AuthState(this);
         this.getState();
     }
@@ -103,14 +101,17 @@ class Game {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         this.state.render();
 
-        if (this.isDebug) {
+        if (CONFIG.isDebug)
             this.drawDebug();
-        }
 
         this.timer.fpsTick++;
     }
 
     drawDebug() {
+
+        if (!CONFIG.debug.drawMainData)
+            return;
+
         let size = 15;
 
         let stringNum = 1;
@@ -131,6 +132,9 @@ class Game {
 
         stringNum++;
         ctx.fillText(`ping:${this.timer.ping}ms`,5,0 + size * stringNum);
+        stringNum++;
+
+        ctx.fillText(`mouse:${mousePos}`,5,0 + size * stringNum);
         stringNum++;
 
         if (this.state.playerRotation) {
@@ -155,7 +159,7 @@ class Game {
             stringNum++;
             ctx.fillText(`camFOV:${Math.floor(this.state.camera.FOV * 100) / 100}`,5,0 + size * stringNum)
 
-            if (this.state.camera.entityToFollow) {
+            if (CONFIG.debug.drawCamEntity && this.state.camera.entityToFollow) {
                 stringNum++;
                 stringNum++;
 
@@ -189,8 +193,7 @@ class Game {
         }
 
         if (this.state.entities) {
-
-            if (this.state.hoverEntity) {
+            if (CONFIG.debug.drawHoverEntity && this.state.hoverEntity) {
                 stringNum++;
 
                 stringNum++;
@@ -232,19 +235,13 @@ class Game {
     }
 
     keyboardPress(code,key) {
-        //console.log(`[Game] event: Keyboard Press key: ${code}`)
+        if (CONFIG.isDebug && CONFIG.debug.drawEvents)
+            console.log(`[Game] event: Keyboard Press key: ${code}`);
+            
         this.state.keyboardPress(code,key);
 
         switch (code) {
-
-            case "Backquote": {
-                if (this.isDebug) {
-                    this.isDebug = false;
-                }
-                else {
-                    this.isDebug = true;
-                }
-            }   
+            case "Backquote": return CONFIG.isDebug=!CONFIG.isDebug
         }
     }
 }

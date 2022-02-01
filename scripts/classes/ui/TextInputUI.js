@@ -1,13 +1,17 @@
 class TextInputUI {
 
-    constructor(pos,size,maxSymbols,text,isHideInside,blockedSymbols) {
+    constructor({pos,size,maxSymbols,text,isHideInside,blockedSymbols,allowedSymbols, value}) {
         this.pos = pos;
         this.size = size;
         this.maxSymbols = maxSymbols;
         this.blockedSymbols = blockedSymbols;
+        this.allowedSymbols = allowedSymbols;
         this.text = text;
 
         this.value = '';
+
+        if (value)
+            this.value = value;
 
         this.isClickable = true;
         
@@ -69,7 +73,7 @@ class TextInputUI {
     }
 
     add(sym) {
-        if (this.value.length < this.maxSymbols && sym.length == 1 && !this.blockedSymbols.includes(sym)) {
+        if (this.value.length < this.maxSymbols && sym.length == 1 && (!this.blockedSymbols || !this.blockedSymbols.includes(sym)) && (!this.allowedSymbols || this.allowedSymbols.includes(sym))) {
             this.value+=sym;
         }
     }

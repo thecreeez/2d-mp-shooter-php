@@ -55,6 +55,10 @@ class MenuState extends GameState {
         this.setTab(new StatsTab(statsFromServer))
     }
 
+    showSettings() {
+        this.setTab(new SettingsTab());
+    }
+
     startSearchGame() {
         this.isGameSearching = true;
         this.gameSearch = setInterval(() => {
@@ -71,8 +75,16 @@ class MenuState extends GameState {
         
     }
 
-    keyboardPress(key) {
-        super.keyboardPress(key);
+    keyboardPress(code,key) {
+        this.tab.items.forEach((item) => {
+            if (item.isSelected) {
+                if (code == 'Backspace') {
+                    return item.erase()
+                }
+
+                item.add(key);
+            }
+        })
     }
 
     setTab(tab) {

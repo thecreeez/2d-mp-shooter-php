@@ -7,7 +7,7 @@ class PlayState extends GameState {
         this.map = maps["chill"];
 
         this.camera = new Camera();
-        this.camera.FOV = this.map.FOV;
+        this.camera.FOV = CONFIG.camera.defaultFOV;
 
         this.chat = new Chat();
         this.healthBar = new HealthBar();
@@ -23,10 +23,6 @@ class PlayState extends GameState {
         this.isMenuOpen = false;
 
         this.hoverEntity = null;
-
-        this.cooldowns = {
-            shot: 0
-        };
 
         this.textures = {
             arrow: new Texture(`icons`,`play`,`arrow`,`yellowArrow`)
@@ -70,8 +66,6 @@ class PlayState extends GameState {
 
         if (data.isControlled)
             game.server.control(data);
-        
-        this.cooldowns.shot--;
     }
 
     clientUpdate() {
@@ -87,10 +81,14 @@ class PlayState extends GameState {
                 entity.animation.frameStateCount++;
             }
         })
-        this.chat.update();
-        this.healthBar.update();
-        this.cooldownBar.update();
-        this.announcer.update();
+
+        if (CONFIG.GUI.isEnable) {
+            if (CONFIG.chat.isEnable)
+                this.chat.update();
+            this.healthBar.update();
+            this.cooldownBar.update();
+            this.announcer.update();
+        }
     }
 
     render() {
@@ -128,10 +126,14 @@ class PlayState extends GameState {
             ctx.fillText(`session id:${game.roomId}`, canvas.width / 2 - 100, 240)
         };
 
-        this.chat.render();
-        this.healthBar.render();
-        this.cooldownBar.render()
-        this.announcer.render();
+        if (CONFIG.GUI.isEnable) {
+            if (CONFIG.chat.isEnable)
+                this.chat.render();
+            this.healthBar.render();
+            this.cooldownBar.render()
+            this.announcer.render();
+        }
+        
         
         this.items.forEach((item) => item.render());
     }
@@ -210,12 +212,6 @@ class PlayState extends GameState {
         this.items.delete("menu1");
         this.isMenuOpen = false;
     }
-
-    hideChat() {
-        this.items.delete("chat0");
-        this.items.delete("chat1");
-        this.isChatOpen = false;
-    }
     
     keyboardPress(code,key) {
         super.keyboardPress(key);
@@ -253,7 +249,7 @@ class PlayState extends GameState {
             }
 
             case "KeyT": {
-                if (this.isMenuOpen) 
+                if (this.isMenuOpen || !CONFIG.chat.isEnable) 
                     return true;
 
                 this.chat.show();

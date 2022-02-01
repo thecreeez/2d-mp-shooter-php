@@ -39,8 +39,17 @@ class MainTab {
             }
         }))
 
+        this.items.set("settingsButton", new ButtonUI({
+            pos:[canvas.width / 2 - 100, 190],
+            size:[200,20],
+            text:"Настройки",
+            onclick: () => {
+                game.state.showSettings();
+            }
+        }))
+
         this.items.set("logoutButton", new ButtonUI({
-            pos:[canvas.width / 2 - 100, 220],
+            pos:[canvas.width / 2 - 100, 250],
             size:[200,20],
             text:"Выйти",
             onclick: () => {
@@ -51,7 +60,7 @@ class MainTab {
         }))
 
         this.items.set("helloUserText", new TextUI({
-            pos:[canvas.width / 2 - 100, 265],
+            pos:[canvas.width / 2 - 100, 295],
             size: 15,
             text:`Привет, ${game.playerName} r:${game.rating}`,
             align:ALIGN.LEFT,

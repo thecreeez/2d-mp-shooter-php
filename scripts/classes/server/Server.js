@@ -146,10 +146,11 @@ class Server {
             game.state.addEntity(entity);
         })
 
-        if (dataSession.helloMessage)
+        if (CONFIG.chat.showSessionHelloMessage && dataSession.helloMessage)
             game.state.chat.addSystemMessage(dataSession.helloMessage);
 
-        game.state.camera.follow(game.state.entities.get(player.name));
+        if (CONFIG.camera.isFollowPlayerByDefault)
+            game.state.camera.follow(game.state.entities.get(player.name));
     }
 
     syncScene(data) {
@@ -218,7 +219,7 @@ class Server {
                     isExistOnClient = true;
             })
 
-            if (!isExistOnClient && clientChat[clientChat.length - 1].time < serverMessage.time)
+            if (CONFIG.chat.receiveMessagesFromPlayers && !isExistOnClient && clientChat[clientChat.length - 1].time < serverMessage.time)
                 game.state.chat.addMessage(serverMessage);
         })
 
@@ -330,6 +331,7 @@ class Server {
     }
 
     async sendChat(content) {
+        console.log("sending to chat: "+ content);
         const data = await this.request(`api?method=sendMessageOnChat&token=${this.token}&content=${content}`);
     }
 }

@@ -71,7 +71,7 @@ class Entity {
 
         this.resetModify();
 
-        if (game.isDebug) {
+        if (CONFIG.isDebug && CONFIG.debug.drawHitboxes) {
             ctx.strokeStyle = `white`;
             ctx.strokeRect(
                 -this.size[0] / 2 * game.state.camera.FOV, -this.size[1] / 2 * game.state.camera.FOV, 
@@ -115,11 +115,12 @@ class Entity {
     }
 
     renderUI() {
-        if  (game.isDebug) {
+        if (CONFIG.isDebug && CONFIG.debug.drawEntityPos) {
+            let fontSize = 15 * game.state.camera.FOV;
             ctx.textAlign = ALIGN.LEFT;
             ctx.fillStyle = 'white';
-            ctx.font = `15px arial`;
-            //ctx.fillText(this.pos, -this.size[0] / 2 * game.state.camera.FOV, - this.size[1] / 2 * game.state.camera.FOV + 12)
+            ctx.font = `${fontSize}px arial`;
+            ctx.fillText(this.pos, -this.size[0] / 2 * game.state.camera.FOV, this.size[1] / 2 * game.state.camera.FOV - fontSize / 2)
         }
     }
 }

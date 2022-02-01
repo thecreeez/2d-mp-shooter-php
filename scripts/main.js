@@ -1,13 +1,12 @@
 const game = new Game();
 
-const clientUPS = 60;
-const serverUPS = 60;
-
 window.onload = function() {
+    preloadConfig();
     start();
     
-    setInterval(update, 1000 / clientUPS);
-    setInterval(updateTick, 1000 / serverUPS);
+    setInterval(update, 1000 / CONFIG.UPS);
+    setInterval(updateTick, 1000 / CONFIG.SUPS);
+    setInterval(render, 1000 / CONFIG.FPS);
     setInterval(timerUpdate, 1000); 
 }
 
@@ -24,6 +23,9 @@ function start() {
  */
 function update() {
     game.clientUpdate();
+}
+
+function render() {
     game.render();
 }
 
