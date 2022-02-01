@@ -13,7 +13,17 @@ class UserEntityManager {
     }
 
     function get($sessions_id) {
-        $entities = $this->db->getUsersEntityAndUserBySession('sessions_id', $sessions_id);
+        $entities = $this->db->query(
+            'SELECT entity_users.*, users.name, users.rating, cooldowns_users.* 
+            FROM 
+                entity_users 
+            INNER JOIN 
+                users ON users.id = entity_users.users_id
+            INNER JOIN
+                cooldowns_users ON cooldowns_users.users_id = entity_users.users_id
+            WHERE 
+                entity_users.sessions_id = '.$sessions_id);
+        
         $entitiesArr = array();
 
 
@@ -23,19 +33,22 @@ class UserEntityManager {
             if ($entity['rotation'] > 90 && $entity['rotation'] < 280)
                 $direction = 'left';
 
-            array_push($entitiesArr, array(
+            $index = array_push($entitiesArr, array(
                 'name' => $entity['name'],
-                'users_id' => $entity['users_id'],
-                'pos' => array($entity['x'],$entity['y']),
+                'users_id' => (int) $entity['users_id'],
+                'pos' => array((int) $entity['x'],(int) $entity['y']),
+                'cooldowns' => array(
+                    'shot' => (int) $entity['shot_cooldown'],
+                    'maxShot' => (int) $entity['max_shot_cooldown'],
+                    'respawn' => (int) $entity['respawn_cooldown'],
+                    'maxRespawn' => (int) $entity['max_respawn_cooldown']
+                ),
                 'type' => 'player',
-                'maxHealth' => 100,
-                'health' => $entity['health'],
+                'maxHealth' => (int) 100,
+                'health' => (int) $entity['health'],
                 'direction' => $direction,
-                'shot_cooldown' => $entity['shot_cooldown'],
-                'last_request' => $entity['last_request'],
-                'kills' => $entity['kills'],
-                'deaths' => $entity['deaths'],
-                'skin' => $entity['skin']
+                'last_request' => (int) $entity['last_request'],
+                'skin' => 'default'
             ));
         }
 
@@ -104,6 +117,7 @@ class UserEntityManager {
         $this->statManager->addStat($userE['users_id'], 'kills', '(-kills)');
         $this->statManager->addStat($userE['users_id'], 'deaths', '(-deaths)');
 
+        $this->db->removeUserEntityCooldowns($userE);
         return $this->db->removeUserEntity($userE);
     }
 

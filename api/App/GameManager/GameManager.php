@@ -4,12 +4,15 @@ require_once('App/GameManager/ChatManager.php');
 require_once('App/GameManager/UserEntityManager.php');
 require_once('App/GameManager/BulletEntityManager.php');
 require_once('App/GameManager/EventManager.php');
+require_once('App/GameManager/CooldownsManager.php');
 require_once('App/GameManager/CollisionManager.php');
 
 class GameManager {
     function __construct($db) {
         $this->ups = 20;
         $this->timeout = 30;
+        $this->isInvulnerable = true;
+        $this->isEnableTimeoutKick = false;
 
         $this->mapSize = array(1000,1000);
 
@@ -25,23 +28,24 @@ class GameManager {
         // Вся логика передвижений сущностей пуль
         $this->bulletEntityManager = new BulletEntityManager($db);
 
+        $this->cooldownManager = new CooldownManager($db);
+
         $this->collisionManager = new CollisionManager();
 
         
     }
 
     function getData($userE, $session) {
+        $this->userEntityManager->updateLastRequest($userE);
         $data = array();
 
         $usersEntities =  $this->userEntityManager->get($userE['sessions_id']);
         $bulletsEntities = $this->bulletEntityManager->get($userE);
 
-        $data['updateData'] = $this->updateSession($userE, $session, $usersEntities, $bulletsEntities);
-        $this->userEntityManager->updateLastRequest($userE);
-
         $data['entities'] = array_merge($usersEntities, $bulletsEntities);
         $data['chat'] = $this->chatManager->get($userE['sessions_id']);
         $data['events'] = array();
+        $data['serverUpdateDebug'] = $this->updateSession($userE, $session, $usersEntities, $bulletsEntities);
 
         return $data;
     }
@@ -50,21 +54,26 @@ class GameManager {
         $controlData = $this->userEntityManager->control($userE, $moveAxis, $rotation, $isShot);
 
         if ($controlData['isShot']) {
-            $shotType = 'shotgun';
+            $cooldowns = $this->cooldownManager->get($userE);
+            $controlData['debugData'] = $cooldowns['shot_cooldown'];
 
-
-            switch ($shotType) {
-                case 'default': {
-                    $controlData['bulletData'] = $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $controlData['rotation']);
-                    break;
+            if (intdiv($cooldowns['shot_cooldown'],1) <= 0) {
+                $shotType = 'shotgun';
+                switch ($shotType) {
+                    case 'default': {
+                        $controlData['bulletData'] = $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $controlData['rotation']);
+                        break;
+                    }
+                    case 'shotgun': {
+                        $shells = rand(3,5);
+    
+                        for ($i = 0; $i < $shells; $i++)
+                            $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $controlData['rotation'] + rand(-30,30));
+                        break;
+                    }
                 }
-                case 'shotgun': {
-                    $shells = rand(3,5);
 
-                    for ($i = 0; $i < $shells; $i++)
-                        $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $controlData['rotation'] + rand(-30,30));
-                    break;
-                }
+                $this->cooldownManager->setCooldown($userE, 'shot', 'max_shot_cooldown');
             }
         }
             
@@ -86,14 +95,14 @@ class GameManager {
         foreach($usersEntities as $userEntity) {
             $fromLastRequest = $currentTime - $userEntity['last_request'];
 
-            if ($fromLastRequest > $this->timeout && $userEntity['last_request'] != 0)
-                $this->userEntityManager->disconnectPlayerEntity($userEntity);
+            if ($this->isEnableTimeoutKick) {
+                if ($fromLastRequest > $this->timeout && $userEntity['last_request'] != 0)
+                    $this->userEntityManager->disconnectPlayerEntity($userEntity);
+            }
         }
 
         $this->bulletEntityManager->updateBullets($session['id'], $this->mapSize, $this->ups);
-
-        //foreach($bulletsEntities as $bulletEntity)
-        //    $lastBulletUps = $this->bulletEntityManager->updateBullet($bulletEntity, $this->mapSize, $this->ups);
+        $this->cooldownManager->update($session['id']);
 
         $collisions = $this->collisionManager->get($usersEntities, $bulletsEntities);
 
@@ -107,12 +116,15 @@ class GameManager {
                 if ($collision['second']['type'] == 'bullet')
                     $this->bulletEntityManager->killBullet($collision['second']);
 
-                    /*
-                if ($collision['first']['type'] == 'bullet' && $collision['second']['type'] == 'player')
-                    $this->userEntityManager->damagePlayer($collision['second'], $collision['first']);
+                if ($this->isInvulnerable) {
 
-                if ($collision['first']['type'] == 'player' && $collision['second']['type'] == 'bullet')
-                    $this->userEntityManager->damagePlayer($collision['first'], $collision['second']);*/
+                } else {
+                    if ($collision['first']['type'] == 'bullet' && $collision['second']['type'] == 'player')
+                        $this->userEntityManager->damagePlayer($collision['second'], $collision['first']);
+
+                    if ($collision['first']['type'] == 'player' && $collision['second']['type'] == 'bullet')
+                        $this->userEntityManager->damagePlayer($collision['first'], $collision['second']);
+                }
             }
         }
 

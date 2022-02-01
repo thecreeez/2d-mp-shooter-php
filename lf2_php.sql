@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Янв 30 2022 г., 04:01
+-- Время создания: Фев 01 2022 г., 08:15
 -- Версия сервера: 5.6.51
 -- Версия PHP: 7.1.33
 
@@ -24,6 +24,27 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `cooldowns_users`
+--
+
+CREATE TABLE `cooldowns_users` (
+  `id` int(11) NOT NULL,
+  `users_id` int(11) NOT NULL,
+  `shot_cooldown` int(11) NOT NULL,
+  `max_shot_cooldown` int(11) NOT NULL DEFAULT '5',
+  `respawn_cooldown` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `cooldowns_users`
+--
+
+INSERT INTO `cooldowns_users` (`id`, `users_id`, `shot_cooldown`, `max_shot_cooldown`, `respawn_cooldown`) VALUES
+(4, 27, 0, 15, 0);
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `entity_bullets`
 --
 
@@ -39,14 +60,6 @@ CREATE TABLE `entity_bullets` (
   `speed` int(11) NOT NULL DEFAULT '10'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Дамп данных таблицы `entity_bullets`
---
-
-INSERT INTO `entity_bullets` (`id`, `uuid`, `sessions_id`, `users_id`, `x`, `y`, `direction`, `damage`, `speed`) VALUES
-(374, '61f5e1a9cef8c', 1, 25, 47760, -4794, 355, 5, 400),
-(377, '61f5e22e92128', 1, 26, -10616, -535, 184, 50, 400);
-
 -- --------------------------------------------------------
 
 --
@@ -61,19 +74,15 @@ CREATE TABLE `entity_users` (
   `y` int(11) NOT NULL DEFAULT '0',
   `health` int(11) NOT NULL DEFAULT '100',
   `rotation` int(11) NOT NULL DEFAULT '0',
-  `last_request` int(11) NOT NULL DEFAULT '0',
-  `shot_cooldown` int(11) NOT NULL DEFAULT '0',
-  `deaths` int(11) NOT NULL DEFAULT '0',
-  `kills` int(11) NOT NULL DEFAULT '0',
-  `skin` text COLLATE utf8mb4_unicode_ci NOT NULL
+  `last_request` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Дамп данных таблицы `entity_users`
 --
 
-INSERT INTO `entity_users` (`id`, `users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`, `last_request`, `shot_cooldown`, `deaths`, `kills`, `skin`) VALUES
-(69, 26, 1, 84, 0, 100, 312, 1643504339, 0, 0, 0, 'default');
+INSERT INTO `entity_users` (`id`, `users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`, `last_request`) VALUES
+(30, 27, 1, -84, -32, 100, 164, 1643692517);
 
 -- --------------------------------------------------------
 
@@ -83,10 +92,18 @@ INSERT INTO `entity_users` (`id`, `users_id`, `sessions_id`, `x`, `y`, `health`,
 
 CREATE TABLE `messages` (
   `id` int(11) NOT NULL,
+  `sessions_id` int(11) NOT NULL,
   `users_id` int(11) NOT NULL,
   `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `time` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `messages`
+--
+
+INSERT INTO `messages` (`id`, `sessions_id`, `users_id`, `content`, `time`) VALUES
+(1, 1, 27, 'heh q', 1643563393);
 
 -- --------------------------------------------------------
 
@@ -131,7 +148,8 @@ CREATE TABLE `stats_users` (
 --
 
 INSERT INTO `stats_users` (`id`, `users_id`, `kills`, `deaths`, `sessions_played`, `global_kills`, `global_deaths`) VALUES
-(4, 26, 1, 0, 0, 0, 0);
+(4, 26, 0, 0, 17, 17, 17),
+(5, 27, 0, 0, 30, 76, 38);
 
 -- --------------------------------------------------------
 
@@ -152,11 +170,18 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `password`, `token`, `rating`) VALUES
-(26, 'admin', '0736bf6e934a073d14c793514c542b16', 'b20ecd1b60f9560b4bf964c8ad71084c', 1000);
+(26, 'admin', '0736bf6e934a073d14c793514c542b16', 'acc8bd1673c4ac69810937dafaf389dd', 1000),
+(27, 'thecreeez', '0736bf6e934a073d14c793514c542b16', '2fc830ba9490b3facc7d8ba8c3dcc69c', 1000);
 
 --
 -- Индексы сохранённых таблиц
 --
+
+--
+-- Индексы таблицы `cooldowns_users`
+--
+ALTER TABLE `cooldowns_users`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Индексы таблицы `entity_bullets`
@@ -199,22 +224,28 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT для таблицы `cooldowns_users`
+--
+ALTER TABLE `cooldowns_users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT для таблицы `entity_bullets`
 --
 ALTER TABLE `entity_bullets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=378;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4913;
 
 --
 -- AUTO_INCREMENT для таблицы `entity_users`
 --
 ALTER TABLE `entity_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT для таблицы `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT для таблицы `sessions`
@@ -226,13 +257,13 @@ ALTER TABLE `sessions`
 -- AUTO_INCREMENT для таблицы `stats_users`
 --
 ALTER TABLE `stats_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

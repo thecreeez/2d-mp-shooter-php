@@ -11,6 +11,7 @@ class PlayState extends GameState {
 
         this.chat = new Chat();
         this.healthBar = new HealthBar();
+        this.cooldownBar = new CooldownBar();
 
         this.announcer = new Announcer();
 
@@ -88,6 +89,7 @@ class PlayState extends GameState {
         })
         this.chat.update();
         this.healthBar.update();
+        this.cooldownBar.update();
         this.announcer.update();
     }
 
@@ -128,6 +130,7 @@ class PlayState extends GameState {
 
         this.chat.render();
         this.healthBar.render();
+        this.cooldownBar.render()
         this.announcer.render();
         
         this.items.forEach((item) => item.render());
@@ -149,6 +152,10 @@ class PlayState extends GameState {
 
                     maxHealth: Number(entity.maxHealth),
                     health: Number(entity.health),
+
+                    data: {
+                        cooldowns: entity.cooldowns
+                    },
 
                     textureName: entity.skin
                 })

@@ -177,16 +177,17 @@ class Server {
             if (clientEntity.direction != serverEntity.direction)
                 clientEntity.direction = serverEntity.direction;
 
-            if (clientEntity.health != Number(serverEntity.health)) {
+            if (clientEntity.health != Number(serverEntity.health))
                 clientEntity.health = Number(serverEntity.health);
-            }
 
             if (clientEntity.textureName != serverEntity.skin)
                 clientEntity.setSkin(serverEntity.skin);
 
-            if (clientEntity.timeToChangeState < 1) {
+            if (clientEntity.timeToChangeState < 1)
                 clientEntity.state = "idle";
-            }
+
+            if (serverEntity.cooldowns)
+                clientEntity.data.cooldowns = serverEntity.cooldowns;
         })
 
         // Существует ли сущность на сервере, если нет - удаляем

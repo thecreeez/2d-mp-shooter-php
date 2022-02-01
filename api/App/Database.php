@@ -16,6 +16,10 @@ class Database {
         $this->db = null;
     }
 
+    function query($query) {
+        return $this->db->query($query);
+    }
+
     function getUser($field, $value) {
         $query = 'SELECT * FROM users WHERE '.$field.' = "'.$value.'"';
 
@@ -101,13 +105,19 @@ class Database {
         return $this->db->query($query);
     }
 
-    function addUserEntity($user, $sessions_id, $skin = 'default', $x = 0, $y = 0, $health = 100, $rotation = 0) {
-        $query = 'INSERT INTO entity_users (`users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`, `skin`) VALUES ('.$user['id'].', '.$sessions_id.', '.$x.', '.$y.', '.$health.', '.$rotation.', "'.$skin.'")';
+    function addUserEntity($user, $sessions_id, $x = 0, $y = 0, $health = 100, $rotation = 0) {
+        $query = 'INSERT INTO entity_users (`users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`) VALUES ('.$user['id'].', '.$sessions_id.', '.$x.', '.$y.', '.$health.', '.$rotation.')';
 
         return $this->db->query($query);
     }
 
-    function updateUserEntity($userE_id, $x, $y, $health, $rotation, $shotCooldown, $deaths, $kills) {
+    function addUserEntityCooldowns($user) {
+        $query = 'INSERT INTO cooldowns_users (users_id) VALUES ('.$user['id'].')';
+
+        return $this->db->query($query);
+    }
+
+    function updateUserEntity($userE_id, $x, $y, $health, $rotation) {
         $query = 'UPDATE entity_users SET ';
 
         $isFirst = true;
@@ -141,39 +151,9 @@ class Database {
             $isFirst = false;
         }
 
-        if ($shotCooldown !== 'nc') {
-            if (!$isFirst)
-                $query = $query.',';
-
-            $query = $query.'shotCooldown = '.$shotCooldown;
-            $isFirst = false;
-        }
-
-        if ($deaths !== 'nc') {
-            if (!$isFirst)
-                $query = $query.',';
-
-            $query = $query.'deaths = '.$deaths;
-            $isFirst = false;
-        }
-
-        if ($kills !== 'nc') {
-            if (!$isFirst)
-                $query = $query.',';
-
-            $query = $query.'kills = '.$kills;
-            $isFirst = false;
-        }
-
         $query = $query.' WHERE entity_users.id = '.$userE_id;
 
-        $this->db->query($query);
-        $arr = array();
-
-        $arr['req'] = $req;
-        $arr['x'] = $x;
-
-        return $arr;
+        return $this->db->query($query);
     }
 
     function removeBulletEntity($bulletId) {
@@ -189,7 +169,19 @@ class Database {
     }
 
     function removeUserEntity($userE) {
-        $query = 'DELETE FROM entity_users WHERE `entity_users`.`users_id` = '.$userE['users_id'];
+        $query = 'DELETE FROM entity_users WHERE `users_id` = '.$userE['users_id'];
+
+        return $this->db->query($query);
+    }
+
+    function removeUserEntityCooldowns($userE) {
+        $query = 'DELETE FROM cooldowns_users WHERE users_id = '.$userE['users_id'];
+
+        return $this->db->query($query);
+    }
+
+    function getCooldownsByUserEntity($userE) {
+        $query = 'SELECT * FROM cooldowns_users WHERE users_id = '.$userE['users_id'];
 
         return $this->db->query($query);
     }

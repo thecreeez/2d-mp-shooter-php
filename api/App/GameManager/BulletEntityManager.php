@@ -12,13 +12,13 @@ class BulletEntityManager {
         foreach ($entities as $entity) {
             array_push($entitiesArr, array(
                 'name' => $entity['uuid'],
-                'id' => $entity['id'],
-                'users_id' => $entity['users_id'],
-                'pos' => array($entity['x'],$entity['y']),
+                'id' => (int) $entity['id'],
+                'users_id' => (int) $entity['users_id'],
+                'pos' => array((int) $entity['x'],(int) $entity['y']),
                 'type' => 'bullet',
-                'direction' => $entity['direction'],
-                'damage' => $entity['damage'],
-                'speed' => $entity['speed'],
+                'direction' => (int) $entity['direction'],
+                'damage' => (int) $entity['damage'],
+                'speed' => (int) $entity['speed'],
                 'playerName' => $userE['name']
             ));
         }
@@ -33,8 +33,6 @@ class BulletEntityManager {
     function updateBullets($sessions_id, $mapSize, $ups) {
         $this->db->setBulletsPosBySessionId($sessions_id, 'x + (speed * COS(direction * PI() / 180)) / '.$ups, 'y + (speed * SIN(direction * PI() / 180)) / '.$ups);
         $this->db->deleteBulletsByPosByExpressionSessionId($sessions_id, 'x < '.(-$mapSize[0] / 2).' OR x > '.($mapSize[0] / 2).' OR y < '.(-$mapSize[1] / 2).' OR y > '.($mapSize[1] / 2));
-
-        
     }
 
     function killBullet($bulletE) {

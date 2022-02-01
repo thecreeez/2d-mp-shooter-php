@@ -23,7 +23,6 @@ class HealthBar {
     }
 
     update() {
-
         if (!this.player) {
             this.player = game.state.entities.get(game.playerName);
         }

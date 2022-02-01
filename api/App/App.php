@@ -147,17 +147,14 @@ class Application {
             'helloMessage' => $session['hello_message']
         );
 
-        if (!$userE) {
-            $this->userManager->addUserEntity($user, $sessions_id, 'blue');
-            return $this->answer->success($data);//'Successfully connected added entity.');
-        }
-
-        if ($userE['sessions_id'] != $sessions_id) {
+        if ($userE) {
+            if ($userE['sessions_id'] == $sessions_id)
+                return $this->answer->success($data);
+            
             $this->userManager->removeUserEntity($userE);
-            $this->userManager->addUserEntity($user, $sessions_id);
-
-            return $this->answer->success($data);//'Successfully moved from '.$userE['sessions_id'].' to '.$sessions_id);
         }
+
+        $this->userManager->addUserEntity($user, $sessions_id);
 
         return $this->answer->success($data);
     }
@@ -169,6 +166,7 @@ class Application {
 
         if ($userE) {
             $this->userManager->removeUserEntity($userE);
+            $this->userManager->removeUserEntityStats($userE);
             return $this->answer->success('User successfully leaved from session '.$userE['sessions_id']);
         }
 
@@ -197,10 +195,6 @@ class Application {
         $data['time'] = $time;
         $data['user'] = array(
             'name' => $user['name']
-        );
-
-        $data['debug'] = array(
-            'query' => 'SELECT entity_users.*, users.name, users.rating FROM entity_users INNER JOIN users, sessions WHERE users.id = entity_users.users_id AND sessions.'.'id'.' = "'.$userE['sessions_id'].'"'
         );
 
         return $this->answer->success($data);
