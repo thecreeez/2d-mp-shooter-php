@@ -19,4 +19,8 @@ class ChatManager {
   function createMessage($sessions_id, $users_id, $content) {
     return $this->db->addMessage($sessions_id, $users_id, $content, time());
   }
+
+  function clearOldMessages($sessions_id, $time) {
+    return $this->db->query('DELETE FROM messages WHERE messages.sessions_id = '.$sessions_id.' AND messages.time + 10 < '.$time);
+  }
 }

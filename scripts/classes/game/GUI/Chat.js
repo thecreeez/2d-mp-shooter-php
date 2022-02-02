@@ -61,7 +61,14 @@ class Chat {
     }
 
     show() {
-        this.items.set("input", new TextInputUI([10,canvas.height - 30],[300,20],30,"Сообщение",false,['&']))
+        this.items.set("input", new TextInputUI({
+            pos:[10,canvas.height - 30],
+            size:[300,20],
+            maxSymbols: 30,
+            text: "Сообщение",
+            isHideInside:false,
+            blockedSymbols:['&']
+        }))
         this.items.set("send", new ButtonUI({
             pos:[320, canvas.height - 30],
             size:[100,20],

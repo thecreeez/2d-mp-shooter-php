@@ -58,7 +58,7 @@ class GameManager {
             $controlData['debugData'] = $cooldowns['shot_cooldown'];
 
             if (intdiv($cooldowns['shot_cooldown'],1) <= 0) {
-                $shotType = 'shotgun';
+                $shotType = 'rainbow';
                 switch ($shotType) {
                     case 'default': {
                         $controlData['bulletData'] = $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $controlData['rotation']);
@@ -70,6 +70,13 @@ class GameManager {
                         for ($i = 0; $i < $shells; $i++)
                             $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $controlData['rotation'] + rand(-30,30));
                         break;
+                    }
+                    case 'rainbow': {
+                        $bullets = 5;
+
+                        for ($i = 0; $i < 360; $i += 360/$bullets) {
+                            $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $i + $controlData['rotation']);
+                        }
                     }
                 }
 
@@ -103,6 +110,7 @@ class GameManager {
 
         $this->bulletEntityManager->updateBullets($session['id'], $this->mapSize, $this->ups);
         $this->cooldownManager->update($session['id']);
+        $this->chatManager->clearOldMessages($session['id'], $currentTime);
 
         $collisions = $this->collisionManager->get($usersEntities, $bulletsEntities);
 

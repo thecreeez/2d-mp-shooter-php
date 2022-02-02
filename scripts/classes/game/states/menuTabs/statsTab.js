@@ -1,8 +1,10 @@
-class StatsTab {
+class StatsTab extends MenuTab {
   constructor(data) {
-    this.items = new Map();
-    this.name = "stats";
-    this.stats = data;
+    super({
+      data: data,
+      name: "stats",
+      tabWidth: 400
+    });
 
     this.items.set("backToMain", new ButtonUI({
       pos:[canvas.width / 2 - 190,canvas.height - 30],
@@ -11,16 +13,16 @@ class StatsTab {
       onclick:async () => {
           game.state.setTab(new MainTab());
       }
-  }))
+    }))
 
-  this.items.set("updateBtn", new ButtonUI({
+    this.items.set("updateBtn", new ButtonUI({
       pos:[canvas.width / 2 + 10 ,canvas.height - 30],
       size:[180,20],
       text:"Обновить", 
       onclick:async () => {
           game.state.showStats();
       }
-  }))
+    }))
 
     this.items.set("topText", new TextUI({
         pos:[canvas.width / 2, 35],
@@ -41,7 +43,7 @@ class StatsTab {
     this.items.set("killsTotalText", new TextUI({
       pos:[canvas.width / 2 - 190, 100],
       size: 15,
-      text:` Убийств: ${this.stats.global_kills}`,
+      text:` Убийств: ${this.data.global_kills}`,
       align:ALIGN.LEFT,
       color:"white"
     }))
@@ -49,7 +51,7 @@ class StatsTab {
     this.items.set("deathsTotalText", new TextUI({
       pos:[canvas.width / 2 - 190, 120],
       size: 15,
-      text:` Смертей: ${this.stats.global_deaths}`,
+      text:` Смертей: ${this.data.global_deaths}`,
       align:ALIGN.LEFT,
       color:"white"
     }))
@@ -57,7 +59,7 @@ class StatsTab {
     this.items.set("kdaTotalText", new TextUI({
       pos:[canvas.width / 2 - 190, 140],
       size: 15,
-      text:` KDA: ${this.stats.global_kills / this.stats.global_deaths}`,
+      text:` KDA: ${this.data.global_kills / this.data.global_deaths}`,
       align:ALIGN.LEFT,
       color:"white"
     }))
@@ -73,7 +75,7 @@ class StatsTab {
     this.items.set("killsText", new TextUI({
       pos:[canvas.width / 2 - 190, 200],
       size: 15,
-      text:` Убийств: ${this.stats.kills}`,
+      text:` Убийств: ${this.data.kills}`,
       align:ALIGN.LEFT,
       color:"white"
     }))
@@ -81,7 +83,7 @@ class StatsTab {
     this.items.set("deathsText", new TextUI({
       pos:[canvas.width / 2 - 190, 220],
       size: 15,
-      text:` Смертей: ${this.stats.deaths}`,
+      text:` Смертей: ${this.data.deaths}`,
       align:ALIGN.LEFT,
       color:"white"
     }))
@@ -89,7 +91,7 @@ class StatsTab {
     this.items.set("kdaText", new TextUI({
       pos:[canvas.width / 2 - 190, 240],
       size: 15,
-      text:` KDA: ${this.stats.kills / this.stats.deaths}`,
+      text:` KDA: ${this.data.kills / this.data.deaths}`,
       align:ALIGN.LEFT,
       color:"white"
     }))
@@ -97,16 +99,9 @@ class StatsTab {
     this.items.set("sessionsPlayedText", new TextUI({
       pos:[canvas.width / 2 - 190, 280],
       size: 15,
-      text:`Сессий сыграно: ${this.stats.sessions_played}`,
+      text:`Сессий сыграно: ${this.data.sessions_played}`,
       align:ALIGN.LEFT,
       color:"white"
     }))
-  }
-
-  render() {
-      ctx.fillStyle = `rgba(255,255,255,0.4)`;
-      ctx.fillRect(canvas.width / 2 - 200, 0, 400, canvas.height);
-
-      this.items.forEach((item) => item.render())
   }
 }

@@ -45,6 +45,10 @@ const CONFIG = {
     isFollowPlayerByDefault: true,
     isLockedAnPlayer: true,
   },
+
+  graphics: {
+    lightLevel: 1.0
+  },
   
   language: "RU"
 }
@@ -84,8 +88,12 @@ function bind(key, onDown, onUp) {
 function preloadConfig() {
   const PRELOADED_CONFIG = JSON.parse(localStorage.getItem("CONFIG_SAVE"));
 
-  if (!PRELOADED_CONFIG)
+  if (!PRELOADED_CONFIG) {
+    for (let keyboardControl in CONFIG.controls.keyboard)
+      setKeyboardControl(keyboardControl ,CONFIG.controls.keyboard[keyboardControl]);
+
     return console.log(`Конфиг не обнаружен. Установлены настройки по умолчанию`);
+  }
 
   console.log(`Конфиг обнаружен. Установка...`)
 

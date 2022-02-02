@@ -1,8 +1,10 @@
-class TopTab {
-    constructor(topPlayers) {
-        this.topPlayers = topPlayers;
-
-        this.items = new Map();
+class TopTab extends MenuTab {
+    constructor(data) {
+        super({
+            data: data,
+            name: "top",
+            tabWidth: 400
+        })
 
         this.items.set("top", new TextUI({
             pos:[canvas.width / 2, 40],
@@ -48,7 +50,7 @@ class TopTab {
             color:"white"
         }))
 
-        this.topPlayers.forEach((player,index) => {
+        this.data.forEach((player,index) => {
             let additionalString = '';
             if (player.name == game.playerName)
                 additionalString+=" (Вы)";
@@ -69,13 +71,5 @@ class TopTab {
                 color:"white"
             }))
         })
-    }
-
-    render() {
-        let sizeX = 400;
-        ctx.fillStyle = `rgba(255,255,255,0.4)`;
-        ctx.fillRect(canvas.width / 2 - sizeX / 2, 0, sizeX, canvas.height);
-
-        this.items.forEach((item) => item.render());
     }
 }

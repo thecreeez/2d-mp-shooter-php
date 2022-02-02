@@ -1,7 +1,10 @@
-class SettingsTab {
-  constructor() {
-    this.items = new Map();
-    this.name = "settings";
+class SettingsTab extends MenuTab {
+  constructor(data) {
+    super({
+      data: data,
+      name: "settings",
+      tabWidth: 400
+    })
 
     this.items.set("topText", new TextUI({
       pos:[canvas.width / 2, 35],
@@ -155,14 +158,6 @@ class SettingsTab {
     let yPos = 35 + 15;
 
     createRecursiveSettings(this.items, CONFIG, yPos, `settings`, true , true);
-  }
-
-  render() {
-    let sizeX = 400;
-    ctx.fillStyle = `rgba(255,255,255,0.4)`;
-    ctx.fillRect(canvas.width / 2 - sizeX / 2, 0, sizeX, canvas.height);
-
-    this.items.forEach((item) => item.render())
   }
 }
 

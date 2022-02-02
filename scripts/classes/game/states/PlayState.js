@@ -28,6 +28,15 @@ class PlayState extends GameState {
             arrow: new Texture(`icons`,`play`,`arrow`,`yellowArrow`)
         }
 
+        this.testEntity = new Light({
+            pos:[0,0],
+            size:[10,10],
+            state: "idle",
+            direction: 0,
+            height: 1,
+            power: 1
+        });
+
         //canvas.style.cursor = "none"
     }
 
@@ -54,9 +63,8 @@ class PlayState extends GameState {
             data.move = {x: move.x, y: move.y};
             data.isControlled = true;
         }
-        if (move.isShooting && ((game.state.cooldowns.shot < 1) || true)) {
+        if (move.isShooting) {
             data.isShot = true;
-            this.cooldowns.shot = 15;
             data.isControlled = true;
         }
         if (player.rotation != this.playerRotation) {
@@ -113,6 +121,8 @@ class PlayState extends GameState {
             else
                 entity.render();
         })
+
+        this.testEntity.render()
 
         this.map.renderFront();
 

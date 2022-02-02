@@ -1,9 +1,10 @@
-class SessionTab {
-    constructor(sessions) {
-        this.items = new Map();
-        this.name = "sessions";
-
-        this.sessions = sessions;
+class SessionTab extends MenuTab {
+    constructor(data) {
+        super({
+            data: data,
+            name: "sessions",
+            tabWidth: 400
+        })
 
         this.items.set("top", new TextUI({
             pos:[canvas.width / 2, 40],
@@ -57,7 +58,7 @@ class SessionTab {
 
         const perSession = 25;
 
-        sessions.forEach((session, index) => {
+        this.data.forEach((session, index) => {
             this.items.set(`sessionId${session.id}`, new TextUI({
                 pos:[canvas.width / 2 - 195, 80 + perSession * index],
                 size: 15,
@@ -91,13 +92,5 @@ class SessionTab {
                 }
             }))
         })
-    }
-
-    render() {
-        let sizeX = 400;
-        ctx.fillStyle = `rgba(255,255,255,0.4)`;
-        ctx.fillRect(canvas.width / 2 - sizeX / 2, 0, sizeX, canvas.height);
-
-        this.items.forEach((item) => item.render())
     }
 }

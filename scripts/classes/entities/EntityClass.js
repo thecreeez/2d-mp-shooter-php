@@ -38,7 +38,6 @@ class Entity {
     }
 
     render(func) {
-
         const camPos = game.state.camera.pos;
         const ownFOV = game.state.camera.FOV * ((this.height + 10) / 10);
 

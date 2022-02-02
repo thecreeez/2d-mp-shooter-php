@@ -6,10 +6,14 @@ class Server {
     isAwaitingControl = false;
 
     async request(url) {
-        const res = await fetch(url);
-        const answer = await res.json();
+        try {
+            const res = await fetch(url);
+            const answer = await res.json();
 
-        return answer;
+            return answer;
+        } catch(e) {
+            
+        }
     } 
 
     async login(name, password) {
@@ -114,24 +118,30 @@ class Server {
             return;
 
         this.isAwaitingUpdate = true;
-        const data = await this.request(`api?method=updateGameData&token=${this.token}&rotation=${game.state.playerRotation}&time=${new Date().getTime()}`);
-        this.isAwaitingUpdate = false;
-        game.timer.pocketsGTick++;
 
-        if (game.state.getName() != "game")
-            return 1;
+        try {
+            const data = await this.request(`api?method=updateGameData&token=${this.token}&rotation=${game.state.playerRotation}&time=${new Date().getTime()}`);
+            this.isAwaitingUpdate = false;
+            game.timer.pocketsGTick++;
 
-        switch (data.status) {
-            case STATUS.OK: {
-                game.timer.pingCounter.push((new Date().getTime()) - data.data.time);
-                this.syncScene(data.data);
-                break;
+            if (game.state.getName() != "game")
+                return 1;
+
+            switch (data.status) {
+                case STATUS.OK: {
+                    game.timer.pingCounter.push((new Date().getTime()) - data.data.time);
+                    this.syncScene(data.data);
+                    break;
+                }
+
+                case STATUS.ERROR: {
+                    game.state.errorNotification(data.data, () => {game.state.hideError()});
+                    break;
+                }
             }
-
-            case STATUS.ERROR: {
-                game.state.errorNotification(data.data, () => {game.state.hideError()});
-                break;
-            }
+        } catch(e) {
+            this.isAwaitingUpdate = false;
+            console.error(`Error fetching data from server. ERR: ${e}`);
         }
     }
 
