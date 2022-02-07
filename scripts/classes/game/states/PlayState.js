@@ -4,6 +4,8 @@ class PlayState extends GameState {
         super();
         this.name = 'game';
 
+        this.playerEntity = undefined;
+
         this.map = maps["chill"];
 
         this.camera = new Camera();
@@ -14,6 +16,16 @@ class PlayState extends GameState {
         this.cooldownBar = new CooldownBar();
 
         this.announcer = new Announcer();
+
+        this.death = {
+            ui: new TextUI({
+                align: ALIGN.CENTER,
+                color: 'white',
+                pos: [canvas.width / 2, canvas.height - 200],
+                size: 20,
+                text: "Вы погибли..."
+            })
+        }
 
         game.roomId = roomId;
 
@@ -27,15 +39,6 @@ class PlayState extends GameState {
         this.textures = {
             arrow: new Texture(`icons`,`play`,`arrow`,`yellowArrow`)
         }
-
-        this.testEntity = new Light({
-            pos:[0,0],
-            size:[10,10],
-            state: "idle",
-            direction: 0,
-            height: 1,
-            power: 1
-        });
 
         //canvas.style.cursor = "none"
     }
@@ -97,32 +100,37 @@ class PlayState extends GameState {
             this.cooldownBar.update();
             this.announcer.update();
         }
+
+        if (!this.playerEntity)
+            this.playerEntity = this.entities.get(game.playerName);
     }
 
     render() {
+        const renderArrow = () => {
+            ctx.rotate((game.state.playerRotation + 90) * Math.PI / 180);
+            ctx.drawImage(this.textures["arrow"].get(), -20 * game.state.camera.FOV, -60 * game.state.camera.FOV, 40 * game.state.camera.FOV, 20 * game.state.camera.FOV);
+            ctx.rotate((-game.state.playerRotation - 90) * Math.PI / 180);
+        };
+
         ctx.save();
         this.camera.update();
         this.map.renderBack();
-        const entityToRender = [];
 
+        const entityToRender = [];
         this.entities.forEach((entity) => {
             entityToRender.push(entity);
         })
-
         entityToRender.sort((a, b) => a.pos[1] > b.pos[1] ? 1 : -1);
 
         entityToRender.forEach((entity) => {
-            if (entity.name == game.playerName && entity.type == "player")
-                entity.render(() => {
-                    ctx.rotate((game.state.playerRotation + 90) * Math.PI / 180);
-                    ctx.drawImage(this.textures["arrow"].get(), -20 * game.state.camera.FOV, -60 * game.state.camera.FOV, 40 * game.state.camera.FOV, 20 * game.state.camera.FOV);
-                    ctx.rotate((-game.state.playerRotation - 90) * Math.PI / 180);
-                });
-            else
-                entity.render();
-        })
+            if (entity.type == "player" && entity.data.serverState == PLAYER_SERVER_STATES.DEAD)
+                return;
 
-        this.testEntity.render()
+            if (entity.name == game.playerName)
+                return entity.render(renderArrow);
+
+            entity.render();
+        })
 
         this.map.renderFront();
 
@@ -140,8 +148,11 @@ class PlayState extends GameState {
             if (CONFIG.chat.isEnable)
                 this.chat.render();
             this.healthBar.render();
-            this.cooldownBar.render()
+            this.cooldownBar.render();
             this.announcer.render();
+
+            if (this.playerEntity.data.serverState == "DEAD")
+                this.death.ui.render();
         }
         
         

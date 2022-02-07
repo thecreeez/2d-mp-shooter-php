@@ -15,6 +15,8 @@ function router($params) {
         case 'getTopPlayers': return $app->top($params);
         case 'getSessions': return $app->sessions($params);
         case 'getStats': return $app->getStats($params);
+
+        case 'createSession': return $app->createSession($params);
     
         case 'connect': return $app->connect($params);
         case 'disconnect': return $app->disconnect($params);

@@ -111,8 +111,38 @@ class Application {
         return $this->answer->success($this->sessionManager->getAll());
     }
 
-    public function getStats($params) {
+    public function createSession($params) {
+        $token = $params['token'];
+        $maxPlayer = $params['max_players'];
+        $type = $params['type'];
+        $name = $params['name'];
+        $helloMessage = $params['hello_message'];
 
+        $user = $this->userManager->getByToken($token);
+
+        if (!$user)
+            return $this->answer->error('Ошибка авторизации!');
+
+        $countUserOwnedSessions = $this->sessionManager->getCountOwnedSessions($user['id']);
+
+        if ($countUserOwnedSessions > 1)
+            $this->sessionManager->clearSessionsByOwner($user['id']);
+
+        if (!$maxPlayer && $maxPlayer < 1)
+            return $this->answer->error('Максимальное кол-во игроков не указано или указано неверно. Получено: '.$maxPlayer);
+
+        if (!$type)
+            return $this->answer->error('Тип не указан. Получено: '.$type);
+
+        if (!$name)
+            return $this->answer->error('Название не указано. Получено: '.$name);
+
+        $data = $this->sessionManager->createSessionOwnedByUser($user, $maxPlayer, $type, $name, $helloMessage);
+
+        return $this->answer->success($data);
+    }
+
+    public function getStats($params) {
         $token = $params['token'];
 
         $user = $this->userManager->getByToken($token);

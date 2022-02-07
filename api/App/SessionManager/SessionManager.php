@@ -72,4 +72,33 @@ class SessionManager {
 
         return $userEntitiesArray;
     }
+
+    function createSessionOwnedByUser($user, $max_players, $type, $name, $hello_message) {
+        $this->createSession($max_players, $type, $name, $hello_message);
+
+        $users_id = $user['id'];
+        $sessions_id = $this->db->query('SELECT LAST_INSERT_ID();')->fetch()[0];
+
+        return $this->db->query('INSERT INTO `sessions_owners` (`sessions_id`, `users_id`) VALUES ('.$sessions_id.','.$users_id.')');
+    }
+
+    function createSession($max_players, $type, $name, $hello_message) {
+        return $this->db->query('INSERT INTO `sessions` (`max_players`, `type`, `name`, `hello_message`) VALUES ('.$max_players.', "'.$type.'", "'.$name.'", "'.$hello_message.'")');
+    }
+
+    function getSessionsByOwner($users_id) {
+        return $this->db->query('SELECT sessions.*, sessions_owners.users_id FROM sessions, sessions_owners WHERE sessions.id = sessions_owners.sessions_id AND sessions_owners.users_id = '.$users_id);
+    }
+
+    function getCountOwnedSessions($users_id) {
+        return $this->db->query('SELECT COUNT(*) FROM sessions, sessions_owners WHERE sessions.id = sessions_owners.sessions_id AND sessions_owners.users_id = '.$users_id)->fetch();
+    }
+
+    function clearSessionsByOwner($users_id) {
+        return $this->db->query('DELETE sessions, sessions_owners FROM sessions INNER JOIN sessions_owners WHERE sessions.id = sessions_owners.sessions_id AND sessions_owners.users_id = '.$users_id);
+    }
+
+    function setLastUpdate($sessions_id, $miliTime) {
+        return $this->db->query('UPDATE sessions SET last_update = '.$miliTime.' WHERE sessions.id = '.$sessions_id);
+    }
 }

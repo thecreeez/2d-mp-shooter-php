@@ -182,6 +182,7 @@ class Player extends Entity {
         ctx.fillStyle = `white`;
         ctx.textAlign = ALIGN.CENTER;
         ctx.fillText(this.name, 0 * game.state.camera.FOV, (-this.size[1] / 2 - 18 + changeFromDefault) * game.state.camera.FOV);
+        ctx.fillText(this.data.serverState, 0 * game.state.camera.FOV, (-this.size[1] / 2 + 20) * game.state.camera.FOV);
         ctx.textAlign = ALIGN.LEFT;
 
         this.healthBar.pos[0] = -this.size[0] / 2 * game.state.camera.FOV;

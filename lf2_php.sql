@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Фев 01 2022 г., 08:15
+-- Время создания: Фев 07 2022 г., 15:01
 -- Версия сервера: 5.6.51
 -- Версия PHP: 7.1.33
 
@@ -40,7 +40,9 @@ CREATE TABLE `cooldowns_users` (
 --
 
 INSERT INTO `cooldowns_users` (`id`, `users_id`, `shot_cooldown`, `max_shot_cooldown`, `respawn_cooldown`) VALUES
-(4, 27, 0, 15, 0);
+(4, 27, 0, 5, 100),
+(6, 27, 0, 5, 100),
+(7, 26, 0, 5, 83);
 
 -- --------------------------------------------------------
 
@@ -60,6 +62,13 @@ CREATE TABLE `entity_bullets` (
   `speed` int(11) NOT NULL DEFAULT '10'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Дамп данных таблицы `entity_bullets`
+--
+
+INSERT INTO `entity_bullets` (`id`, `uuid`, `sessions_id`, `users_id`, `x`, `y`, `direction`, `damage`, `speed`) VALUES
+(3947, '620109dd60841', 1, 27, -351, -172, 196, 50, 400);
+
 -- --------------------------------------------------------
 
 --
@@ -74,6 +83,7 @@ CREATE TABLE `entity_users` (
   `y` int(11) NOT NULL DEFAULT '0',
   `health` int(11) NOT NULL DEFAULT '100',
   `rotation` int(11) NOT NULL DEFAULT '0',
+  `state` varchar(12) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'DEAD',
   `last_request` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -81,8 +91,9 @@ CREATE TABLE `entity_users` (
 -- Дамп данных таблицы `entity_users`
 --
 
-INSERT INTO `entity_users` (`id`, `users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`, `last_request`) VALUES
-(30, 27, 1, -84, -32, 100, 164, 1643692517);
+INSERT INTO `entity_users` (`id`, `users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`, `state`, `last_request`) VALUES
+(6, 27, 1, 208, 0, 100, 218, 'ALIVE', 1644235231),
+(7, 26, 1, -36, 0, 0, 323, 'DEAD', 1644235227);
 
 -- --------------------------------------------------------
 
@@ -98,13 +109,6 @@ CREATE TABLE `messages` (
   `time` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Дамп данных таблицы `messages`
---
-
-INSERT INTO `messages` (`id`, `sessions_id`, `users_id`, `content`, `time`) VALUES
-(1, 1, 27, 'heh q', 1643563393);
-
 -- --------------------------------------------------------
 
 --
@@ -114,6 +118,7 @@ INSERT INTO `messages` (`id`, `sessions_id`, `users_id`, `content`, `time`) VALU
 CREATE TABLE `sessions` (
   `id` int(11) NOT NULL,
   `max_players` int(11) NOT NULL,
+  `type` varchar(24) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'DEATHMATCH',
   `name` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `hello_message` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_update` bigint(20) NOT NULL
@@ -123,9 +128,30 @@ CREATE TABLE `sessions` (
 -- Дамп данных таблицы `sessions`
 --
 
-INSERT INTO `sessions` (`id`, `max_players`, `name`, `hello_message`, `last_update`) VALUES
-(1, 50, 'beta-room', 'hi kek', 0),
-(2, 10, 'session_shit', 't', 0);
+INSERT INTO `sessions` (`id`, `max_players`, `type`, `name`, `hello_message`, `last_update`) VALUES
+(1, 15, 'DEATHMATCH', 'beta-room', 'hi kek', 1644235231924),
+(2, 10, 'DEATHMATCH', 'session_shit', 't', 0),
+(3, 12, 'DEATHMATCH', 'fsdfd', 'fsfd', 0),
+(17, 1, 'DEATHMATCH', 'testName', '', 1644234968859);
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `sessions_owners`
+--
+
+CREATE TABLE `sessions_owners` (
+  `id` int(11) NOT NULL,
+  `sessions_id` int(11) NOT NULL,
+  `users_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `sessions_owners`
+--
+
+INSERT INTO `sessions_owners` (`id`, `sessions_id`, `users_id`) VALUES
+(6, 17, 27);
 
 -- --------------------------------------------------------
 
@@ -148,8 +174,8 @@ CREATE TABLE `stats_users` (
 --
 
 INSERT INTO `stats_users` (`id`, `users_id`, `kills`, `deaths`, `sessions_played`, `global_kills`, `global_deaths`) VALUES
-(4, 26, 0, 0, 17, 17, 17),
-(5, 27, 0, 0, 30, 76, 38);
+(4, 26, 4, 2, 0, 0, 0),
+(5, 27, 2, 4, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -170,8 +196,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `password`, `token`, `rating`) VALUES
-(26, 'admin', '0736bf6e934a073d14c793514c542b16', 'acc8bd1673c4ac69810937dafaf389dd', 1000),
-(27, 'thecreeez', '0736bf6e934a073d14c793514c542b16', '2fc830ba9490b3facc7d8ba8c3dcc69c', 1000);
+(26, 'admin', '0736bf6e934a073d14c793514c542b16', '674393452c08d2d946fdedd98a1ed8ae', 1000),
+(27, 'thecreeez', '0736bf6e934a073d14c793514c542b16', '81125f0ab168091cecc05449be3552ed', 1000);
 
 --
 -- Индексы сохранённых таблиц
@@ -208,6 +234,12 @@ ALTER TABLE `sessions`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Индексы таблицы `sessions_owners`
+--
+ALTER TABLE `sessions_owners`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Индексы таблицы `stats_users`
 --
 ALTER TABLE `stats_users`
@@ -227,31 +259,37 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `cooldowns_users`
 --
 ALTER TABLE `cooldowns_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT для таблицы `entity_bullets`
 --
 ALTER TABLE `entity_bullets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4913;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3950;
 
 --
 -- AUTO_INCREMENT для таблицы `entity_users`
 --
 ALTER TABLE `entity_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT для таблицы `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT для таблицы `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT для таблицы `sessions_owners`
+--
+ALTER TABLE `sessions_owners`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT для таблицы `stats_users`

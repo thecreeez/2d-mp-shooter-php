@@ -10,6 +10,12 @@ class CollisionManager {
 
   function get($usersEntities, $bulletsEntities) {
     $collisions = array();
+
+    foreach($usersEntities as $key => $userE) {
+      if ($userE['state'] == 'DEAD')
+        unset($usersEntities[$key]);
+    }
+
     $entities = array_merge($usersEntities, $bulletsEntities);
 
     $mainCurr = 0;

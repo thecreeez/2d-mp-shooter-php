@@ -1,6 +1,7 @@
 <?php
 
 require_once('App/GameManager/StatManager.php');
+require_once('App/GameManager/Enums/PlayerStates.php');
 
 class UserEntityManager {
     function __construct($db) {
@@ -44,6 +45,7 @@ class UserEntityManager {
                     'maxRespawn' => (int) $entity['max_respawn_cooldown']
                 ),
                 'type' => 'player',
+                'state' => $entity['state'],
                 'maxHealth' => (int) 100,
                 'health' => (int) $entity['health'],
                 'direction' => $direction,
@@ -56,6 +58,10 @@ class UserEntityManager {
     }
 
     function control($userE, $moveAxis, $rotation, $isShot) {
+
+        if ($userE['state'] == PlayerState::STUNNED || $userE['state'] == PlayerState::DEAD)
+            return;
+
         $returnData = array(
             'x' => $userE['x'],
             'y' => $userE['y'],
@@ -104,6 +110,35 @@ class UserEntityManager {
         return $this->db->updateUserEntity($userE['id'], $x, $y, $userE['health'], $rotation, $shotCooldown, $userE['deaths'], $userE['kills']);
     }
 
+    function updateStates($sessions_id) {
+      return $this->db->query('UPDATE
+      cooldowns_users,
+      entity_users
+  SET
+      entity_users.health = IF(
+          entity_users.state = "DEAD" AND respawn_cooldown = -1,
+          100,
+          entity_users.health
+      ),
+      entity_users.x = IF(
+          entity_users.state = "DEAD" AND respawn_cooldown = -1,
+          0,
+          entity_users.x
+      ),
+      entity_users.y = IF(
+          entity_users.state = "DEAD" AND respawn_cooldown = -1,
+          0,
+          entity_users.y
+      ),
+      entity_users.state = IF(
+          entity_users.state = "DEAD" AND respawn_cooldown = -1,
+          "ALIVE",
+          entity_users.state
+      )
+  WHERE
+      cooldowns_users.users_id = entity_users.users_id AND entity_users.sessions_id = '.$sessions_id);
+    }
+
     function updateLastRequest($userE) {
         return $this->db->setUserEntityProperty($userE, 'last_request', time());
     }
@@ -127,7 +162,18 @@ class UserEntityManager {
 
         $this->statManager->addStat($reason['users_id'], 'kills', 1);
         $this->statManager->addStat($userE['users_id'], 'deaths', 1);
-        $this->disconnectPlayerEntity($userE);
+        $this->setEntityState($userE['users_id'], PlayerState::DEAD);
+        $this->db->setUserEntityProperty($userE, 'health', 0);
+    }
+
+    function setEntityState($users_id, $state) {
+      return $this->db->query('UPDATE cooldowns_users, entity_users 
+        SET 
+            entity_users.state = "'.$state.'"
+            WHERE 
+                cooldowns_users.users_id = entity_users.users_id AND 
+                entity_users.users_id = '.$users_id
+        );
     }
 
     function createStats($user) {

@@ -199,6 +199,9 @@ class Server {
 
             if (serverEntity.cooldowns)
                 clientEntity.data.cooldowns = serverEntity.cooldowns;
+
+            if (serverEntity.state)
+                clientEntity.data.serverState = serverEntity.state;
         })
 
         // Существует ли сущность на сервере, если нет - удаляем

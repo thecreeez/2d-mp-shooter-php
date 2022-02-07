@@ -1,20 +1,26 @@
 <?php
 
+
+require_once('App/EventBus.php');
 require_once('App/GameManager/ChatManager.php');
 require_once('App/GameManager/UserEntityManager.php');
 require_once('App/GameManager/BulletEntityManager.php');
 require_once('App/GameManager/EventManager.php');
 require_once('App/GameManager/CooldownsManager.php');
 require_once('App/GameManager/CollisionManager.php');
+require_once('App/SessionManager/SessionManager.php');
 
 class GameManager {
     function __construct($db) {
-        $this->ups = 20;
+        $this->ups = 30;
         $this->timeout = 30;
-        $this->isInvulnerable = true;
+        $this->isInvulnerable = false;
         $this->isEnableTimeoutKick = false;
 
         $this->mapSize = array(1000,1000);
+
+        // EventBus
+        $this->eventBus = new EventBus();
 
         // Вся логика чата
         $this->chatManager = new ChatManager($db);
@@ -32,7 +38,7 @@ class GameManager {
 
         $this->collisionManager = new CollisionManager();
 
-        
+        $this->sessionManager = new SessionManager($db);
     }
 
     function getData($userE, $session) {
@@ -53,12 +59,15 @@ class GameManager {
     function control($userE, $moveAxis, $rotation, $isShot) {
         $controlData = $this->userEntityManager->control($userE, $moveAxis, $rotation, $isShot);
 
+        if (!$controlData)
+            return;
+
         if ($controlData['isShot']) {
             $cooldowns = $this->cooldownManager->get($userE);
             $controlData['debugData'] = $cooldowns['shot_cooldown'];
 
             if (intdiv($cooldowns['shot_cooldown'],1) <= 0) {
-                $shotType = 'rainbow';
+                $shotType = 'default';
                 switch ($shotType) {
                     case 'default': {
                         $controlData['bulletData'] = $this->bulletEntityManager->addBullet($userE, $controlData['x'], $controlData['y'], $controlData['rotation']);
@@ -91,13 +100,13 @@ class GameManager {
         $currentMiliTime = intdiv(microtime(true) * 1000, 1);
         
         if ($currentMiliTime - $session['last_update'] > 1000 / ($this->ups) || $session['last_update'] == '0') {
+            $this->sessionManager->setLastUpdate($session['id'], $currentMiliTime);
             return $this->update($session, $usersEntities, $bulletsEntities);
         }
     }
 
     function update($session, $usersEntities, $bulletsEntities) {
         $currentTime = time();
-        $lastBulletUps = 0;
 
         foreach($usersEntities as $userEntity) {
             $fromLastRequest = $currentTime - $userEntity['last_request'];
@@ -110,6 +119,7 @@ class GameManager {
 
         $this->bulletEntityManager->updateBullets($session['id'], $this->mapSize, $this->ups);
         $this->cooldownManager->update($session['id']);
+        $this->userEntityManager->updateStates($session['id']);
         $this->chatManager->clearOldMessages($session['id'], $currentTime);
 
         $collisions = $this->collisionManager->get($usersEntities, $bulletsEntities);
@@ -136,7 +146,7 @@ class GameManager {
             }
         }
 
-        return $lastBulletUps;
+        return;
     }
 
     function createStats($user) {
