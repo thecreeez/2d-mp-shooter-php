@@ -1,37 +1,75 @@
-class MainTab {
-    constructor() {
-        this.items = new Map();
-        this.name = "main";
+class MainTab extends MenuTab {
+    constructor(data) {
+        super({
+            data: data, 
+            name: "main",
+            tabWidth: 220
+        });
+
+        let yPos = 100;
+        let spaceToNext = 30;
 
         this.items.set("findGameButton", new ButtonUI({
-            pos:[canvas.width / 2 - 100,100],
+            pos:[canvas.width / 2 - 100,yPos],
             size:[200,20],
             text:"Играть", 
             onclick: () => {
                 game.state.errorNotification("Поиск находится в разработке", () => {game.state.hideError()})
             }
         }))
+        yPos += spaceToNext;
 
         this.items.set("activeMatchesButton", new ButtonUI({
-            pos:[canvas.width / 2 - 100, 130],
+            pos:[canvas.width / 2 - 100, yPos],
             size:[200,20],
             text:"Активные сессии",
             onclick: () => {
                 game.state.showOpenedSessions();
             }
         }))
+        yPos += spaceToNext;
+
+        this.items.set("shopButton", new ButtonUI({
+            pos:[canvas.width / 2 - 100, yPos],
+            size:[200,20],
+            text:"Магазин",
+            onclick: () => {
+                game.state.showShop();
+            }
+        }))
+        yPos += spaceToNext;
+
+        this.items.set("settingsButton", new ButtonUI({
+            pos:[canvas.width / 2 - 100, yPos],
+            size:[200,20],
+            text:"Настройки",
+            onclick: () => {
+                game.state.showSettings();
+            }
+        }))
+        yPos += spaceToNext;
 
         this.items.set("topPlayersButton", new ButtonUI({
-            pos:[canvas.width / 2 - 100, 160],
-            size:[200,20],
+            pos:[canvas.width / 2 - 100, yPos],
+            size:[95,20],
             text:"Топ игроков",
             onclick: () => {
                 game.state.showTopPlayers();
             }
         }))
 
+        this.items.set("statsButton", new ButtonUI({
+            pos:[canvas.width / 2 + 5, yPos],
+            size:[95,20],
+            text:"Статистика",
+            onclick: () => {
+                game.state.showStats();
+            }
+        }))
+        yPos += spaceToNext * 2;
+
         this.items.set("logoutButton", new ButtonUI({
-            pos:[canvas.width / 2 - 100, 220],
+            pos:[canvas.width / 2 - 100, yPos],
             size:[200,20],
             text:"Выйти",
             onclick: () => {
@@ -40,9 +78,10 @@ class MainTab {
                 console.log(`Выход из аккаунта...`)
             }
         }))
+        yPos += spaceToNext + 15;
 
         this.items.set("helloUserText", new TextUI({
-            pos:[canvas.width / 2 - 100, 265],
+            pos:[canvas.width / 2 - 100, yPos],
             size: 15,
             text:`Привет, ${game.playerName} r:${game.rating}`,
             align:ALIGN.LEFT,
@@ -56,12 +95,5 @@ class MainTab {
             align:ALIGN.CENTER,
             color:"white"
         }))
-    }
-
-    render() {
-        ctx.fillStyle = `rgba(255,255,255,0.4)`;
-        ctx.fillRect(canvas.width / 2 - 110, 0, 220, canvas.height);
-
-        this.items.forEach((item) => item.render())
     }
 }

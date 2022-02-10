@@ -61,8 +61,12 @@ class Application {
         if ($this->userManager->getByName($name))
             return $this->answer->error('user with this name already exists.');
 
-        $token = $this->authManager->register($name,$password);
-        return $this->answer->success($token);
+        $data = $this->authManager->register($name,$password);
+
+        $user = $this->userManager->getByName($name);
+        $data['additional'] = $this->gameManager->createStats($user);
+
+        return $this->answer->success($data);
     }
 
     public function login($params) {
@@ -107,6 +111,50 @@ class Application {
         return $this->answer->success($this->sessionManager->getAll());
     }
 
+    public function createSession($params) {
+        $token = $params['token'];
+        $maxPlayer = $params['max_players'];
+        $type = $params['type'];
+        $name = $params['name'];
+        $helloMessage = $params['hello_message'];
+
+        $user = $this->userManager->getByToken($token);
+
+        if (!$user)
+            return $this->answer->error('Ошибка авторизации!');
+
+        $countUserOwnedSessions = $this->sessionManager->getCountOwnedSessions($user['id']);
+
+        if ($countUserOwnedSessions > 1)
+            $this->sessionManager->clearSessionsByOwner($user['id']);
+
+        if (!$maxPlayer && $maxPlayer < 1)
+            return $this->answer->error('Максимальное кол-во игроков не указано или указано неверно. Получено: '.$maxPlayer);
+
+        if (!$type)
+            return $this->answer->error('Тип не указан. Получено: '.$type);
+
+        if (!$name)
+            return $this->answer->error('Название не указано. Получено: '.$name);
+
+        $data = $this->sessionManager->createSessionOwnedByUser($user, $maxPlayer, $type, $name, $helloMessage);
+
+        return $this->answer->success($data);
+    }
+
+    public function getStats($params) {
+        $token = $params['token'];
+
+        $user = $this->userManager->getByToken($token);
+
+        if (!$user)
+            return $this->answer->error('token isn\'t valid.');
+
+        $data = $this->userManager->getStats($user);
+
+        return $this->answer->success($data);
+    }
+
     public function connect($params) {
         $token = $params['token'];
         $sessions_id = $params['session'];
@@ -129,17 +177,14 @@ class Application {
             'helloMessage' => $session['hello_message']
         );
 
-        if (!$userE) {
-            $this->userManager->addUserEntity($user, $sessions_id, 'blue');
-            return $this->answer->success($data);//'Successfully connected added entity.');
-        }
-
-        if ($userE['sessions_id'] != $sessions_id) {
+        if ($userE) {
+            if ($userE['sessions_id'] == $sessions_id)
+                return $this->answer->success($data);
+            
             $this->userManager->removeUserEntity($userE);
-            $this->userManager->addUserEntity($user, $sessions_id);
-
-            return $this->answer->success($data);//'Successfully moved from '.$userE['sessions_id'].' to '.$sessions_id);
         }
+
+        $this->userManager->addUserEntity($user, $sessions_id);
 
         return $this->answer->success($data);
     }
@@ -151,6 +196,7 @@ class Application {
 
         if ($userE) {
             $this->userManager->removeUserEntity($userE);
+            $this->userManager->removeUserEntityStats($userE);
             return $this->answer->success('User successfully leaved from session '.$userE['sessions_id']);
         }
 
@@ -179,10 +225,6 @@ class Application {
         $data['time'] = $time;
         $data['user'] = array(
             'name' => $user['name']
-        );
-
-        $data['debug'] = array(
-            'query' => 'SELECT entity_users.*, users.name, users.rating FROM entity_users INNER JOIN users, sessions WHERE users.id = entity_users.users_id AND sessions.'.'id'.' = "'.$userE['sessions_id'].'"'
         );
 
         return $this->answer->success($data);
@@ -224,5 +266,14 @@ class Application {
             'token' => $token,
             'query' => 'SELECT entity_users.* FROM entity_users INNER JOIN users WHERE users.token = "'.$token.'"'
         ));
+    }
+
+    public function sendMessageOnChat($params) {
+        $token = $params['token'];
+        $content = $params['content'];
+
+        $userE = $this->userManager->getUserEntity('token',$token);
+
+        return $this->gameManager->sendMessage($userE, $content);
     }
 }

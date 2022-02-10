@@ -11,21 +11,23 @@ function router($params) {
         case 'register': return $app->register($params);
         case 'login': return $app->login($params);
         case 'auth': return $app->auth($params);
-
+    
         case 'getTopPlayers': return $app->top($params);
-
         case 'getSessions': return $app->sessions($params);
+        case 'getStats': return $app->getStats($params);
 
+        case 'createSession': return $app->createSession($params);
+    
         case 'connect': return $app->connect($params);
         case 'disconnect': return $app->disconnect($params);
-
+    
         case 'updateGameData': return $app->updateGameData($params);
-
+    
         case 'control': return $app->control($params);
         case 'sendMessageOnChat': return $app->sendMessageOnChat($params);
-
+    
         case 'debug': return $app->debug($params);
-
+    
         default: return $app->unexpectedMethod($params);
     }
 }

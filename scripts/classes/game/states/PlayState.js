@@ -4,15 +4,28 @@ class PlayState extends GameState {
         super();
         this.name = 'game';
 
+        this.playerEntity = undefined;
+
         this.map = maps["chill"];
 
         this.camera = new Camera();
-        this.camera.FOV = this.map.FOV;
+        this.camera.FOV = CONFIG.camera.defaultFOV;
 
         this.chat = new Chat();
         this.healthBar = new HealthBar();
+        this.cooldownBar = new CooldownBar();
 
         this.announcer = new Announcer();
+
+        this.death = {
+            ui: new TextUI({
+                align: ALIGN.CENTER,
+                color: 'white',
+                pos: [canvas.width / 2, canvas.height - 200],
+                size: 20,
+                text: "Вы погибли..."
+            })
+        }
 
         game.roomId = roomId;
 
@@ -22,10 +35,6 @@ class PlayState extends GameState {
         this.isMenuOpen = false;
 
         this.hoverEntity = null;
-
-        this.cooldowns = {
-            shot: 0
-        };
 
         this.textures = {
             arrow: new Texture(`icons`,`play`,`arrow`,`yellowArrow`)
@@ -57,9 +66,8 @@ class PlayState extends GameState {
             data.move = {x: move.x, y: move.y};
             data.isControlled = true;
         }
-        if (move.isShooting && game.state.cooldowns.shot < 1) {
+        if (move.isShooting) {
             data.isShot = true;
-            this.cooldowns.shot = 15;
             data.isControlled = true;
         }
         if (player.rotation != this.playerRotation) {
@@ -69,8 +77,6 @@ class PlayState extends GameState {
 
         if (data.isControlled)
             game.server.control(data);
-        
-        this.cooldowns.shot--;
     }
 
     clientUpdate() {
@@ -86,32 +92,44 @@ class PlayState extends GameState {
                 entity.animation.frameStateCount++;
             }
         })
-        this.chat.update();
-        this.healthBar.update();
-        this.announcer.update();
+
+        if (CONFIG.GUI.isEnable) {
+            if (CONFIG.chat.isEnable)
+                this.chat.update();
+            this.healthBar.update();
+            this.cooldownBar.update();
+            this.announcer.update();
+        }
+
+        if (!this.playerEntity)
+            this.playerEntity = this.entities.get(game.playerName);
     }
 
     render() {
+        const renderArrow = () => {
+            ctx.rotate((game.state.playerRotation + 90) * Math.PI / 180);
+            ctx.drawImage(this.textures["arrow"].get(), -20 * game.state.camera.FOV, -60 * game.state.camera.FOV, 40 * game.state.camera.FOV, 20 * game.state.camera.FOV);
+            ctx.rotate((-game.state.playerRotation - 90) * Math.PI / 180);
+        };
+
         ctx.save();
         this.camera.update();
         this.map.renderBack();
-        const entityToRender = [];
 
+        const entityToRender = [];
         this.entities.forEach((entity) => {
             entityToRender.push(entity);
         })
-
         entityToRender.sort((a, b) => a.pos[1] > b.pos[1] ? 1 : -1);
 
         entityToRender.forEach((entity) => {
-            if (entity.name == game.playerName && entity.type == "player")
-                entity.render(() => {
-                    ctx.rotate((game.state.playerRotation + 90) * Math.PI / 180);
-                    ctx.drawImage(this.textures["arrow"].get(), -20 * game.state.camera.FOV, -60 * game.state.camera.FOV, 40 * game.state.camera.FOV, 20 * game.state.camera.FOV);
-                    ctx.rotate((-game.state.playerRotation - 90) * Math.PI / 180);
-                });
-            else
-                entity.render();
+            if (entity.type == "player" && entity.data.serverState == PLAYER_SERVER_STATES.DEAD)
+                return;
+
+            if (entity.name == game.playerName)
+                return entity.render(renderArrow);
+
+            entity.render();
         })
 
         this.map.renderFront();
@@ -126,9 +144,17 @@ class PlayState extends GameState {
             ctx.fillText(`session id:${game.roomId}`, canvas.width / 2 - 100, 240)
         };
 
-        this.chat.render();
-        this.healthBar.render();
-        this.announcer.render();
+        if (CONFIG.GUI.isEnable) {
+            if (CONFIG.chat.isEnable)
+                this.chat.render();
+            this.healthBar.render();
+            this.cooldownBar.render();
+            this.announcer.render();
+
+            if (this.playerEntity.data.serverState == "DEAD")
+                this.death.ui.render();
+        }
+        
         
         this.items.forEach((item) => item.render());
     }
@@ -149,6 +175,10 @@ class PlayState extends GameState {
 
                     maxHealth: Number(entity.maxHealth),
                     health: Number(entity.health),
+
+                    data: {
+                        cooldowns: entity.cooldowns
+                    },
 
                     textureName: entity.skin
                 })
@@ -203,12 +233,6 @@ class PlayState extends GameState {
         this.items.delete("menu1");
         this.isMenuOpen = false;
     }
-
-    hideChat() {
-        this.items.delete("chat0");
-        this.items.delete("chat1");
-        this.isChatOpen = false;
-    }
     
     keyboardPress(code,key) {
         super.keyboardPress(key);
@@ -246,7 +270,7 @@ class PlayState extends GameState {
             }
 
             case "KeyT": {
-                if (this.isMenuOpen) 
+                if (this.isMenuOpen || !CONFIG.chat.isEnable) 
                     return true;
 
                 this.chat.show();

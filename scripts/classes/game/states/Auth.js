@@ -7,8 +7,22 @@ class AuthState extends GameState {
 
         this.items = new Map();
 
-        this.loginInput = new TextInputUI([canvas.width / 2 - 100,100],[200,20],20,"никнейм",false,[' ']);
-        this.passwordInput = new TextInputUI([canvas.width / 2 - 100,130],[200,20],20,"пароль",true,[' ']);
+        this.loginInput = new TextInputUI({
+            pos: [canvas.width / 2 - 100,100],
+            size:[200,20],
+            maxSymbols:20,
+            text:"никнейм",
+            isHideInside: false,
+            blockedSymbols: [' ']
+        });
+        this.passwordInput = new TextInputUI({
+            pos:[canvas.width / 2 - 100,130],
+            size:[200,20],
+            maxSymbols:20,
+            text:"пароль",
+            isHideInside:true,
+            blockedSymbols:[' ']
+        });
 
         this.items.set("login", this.loginInput)
         this.items.set("password",this.passwordInput)
@@ -21,23 +35,20 @@ class AuthState extends GameState {
                 if (this.loginInput.value.length <= 0 && this.passwordInput.value.length <= 0)
                     return this.errorNotification(`Логин или пароль не введен`, () => {this.hideError()});
 
-                    const req = await game.server.login(this.loginInput.value,this.passwordInput.value);
-
-                    console.log(req);
-
-            /*if (this.loginInput.value.length > 0 && this.passwordInput.value.length > 0) {
                 const req = await game.server.login(this.loginInput.value,this.passwordInput.value);
-                
-                if (req) {
-                    game.playerName = req.data.name;
-                    game.rating = req.data.rating;
 
-                    game.state = new MenuState();
-
-                    if (req.data.isPlaying)
-                        game.state.errorNotification('Вы уже гдето играете', () => {game.state.hideError()})
+                switch (req.status) {
+                    case STATUS.OK: {
+                        game.playerName = req.data.name;
+                        game.rating = req.data.rating;
+                        game.state = new MenuState();
+                        break;
+                    }
+                    case STATUS.ERROR: {
+                        game.state.errorNotification(req.data, () => {game.state.hideError()})
+                        break;
+                    }
                 }
-            }*/
         }}))
 
         this.items.set("btnRegister",new ButtonUI({
@@ -87,7 +98,6 @@ class AuthState extends GameState {
     }
 
     keyboardPress(code,key) {
-
         this.items.forEach((item) => {
             if (item.isSelected) {
                 if (code == 'Backspace') {

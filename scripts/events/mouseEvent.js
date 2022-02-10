@@ -25,7 +25,7 @@ document.addEventListener('mousedown', (ev) => {
 
     if (newSelectedItem) return newSelectedItem.click();
     
-    if (game.state.getName() == "game") {
+    if (game.state.getName() == "game" && !CONFIG.camera.isLockedAnPlayer) {
         let entityFollow = undefined;
 
         game.state.entities.forEach((entity) => {
@@ -36,7 +36,7 @@ document.addEventListener('mousedown', (ev) => {
             const yMin = (entity.pos[1] - entity.size[1] / 2 - game.state.camera.pos[1]) * game.state.camera.FOV + canvas.height / 2;
             const yMax = (entity.pos[1] + entity.size[1] / 2 - game.state.camera.pos[1]) * game.state.camera.FOV + canvas.height / 2;
 
-            ctx.strokeRect(xMin, yMin, entity.size[0] * game.state.camera.FOV, entity.size[1] * game.state.camera.FOV)
+            //ctx.strokeRect(xMin, yMin, entity.size[0] * game.state.camera.FOV, entity.size[1] * game.state.camera.FOV)
 
             if (xMin < mousePos[0] && xMax > mousePos[0] &&
                 yMin < mousePos[1] && yMax > mousePos[1]) {
@@ -91,8 +91,8 @@ document.addEventListener('mousemove', (ev) => {
 
             const newCamPos = [mousePos[0] - prevMouse[0], mousePos[1] - prevMouse[1]];
     
-            newCamPos[0]*=-1;
-            newCamPos[1]*=-1;
+            newCamPos[0]*=-1 * CONFIG.camera.speedAmplification;
+            newCamPos[1]*=-1 * CONFIG.camera.speedAmplification;
     
             game.state.camera.set([game.state.camera.pos[0] + newCamPos[0] / game.state.camera.FOV ,game.state.camera.pos[1] + newCamPos[1] / game.state.camera.FOV])
         }
@@ -104,7 +104,7 @@ document.addEventListener('mousemove', (ev) => {
 
 document.addEventListener('wheel', (ev) => {
 
-    let sensivity = 0.7;
+    let sensivity = CONFIG.controls.mouse.wheelSensivity;
 
     if (game.state.getName() != "game")
         return true;
@@ -112,28 +112,24 @@ document.addEventListener('wheel', (ev) => {
     if (game.state.chat.isOpen || game.state.isMenuOpen) 
         return true;
 
-    if (game.state.camera.FOV <= 0.4 && ev.deltaY < 0) return true;
-    if (game.state.camera.FOV >= 4 && ev.deltaY > 0) return true;
-
     game.state.camera.FOV+= ev.deltaY / 1000 * sensivity;
 
-    if (game.state.camera.FOV < 0.4) game.state.camera.FOV = 0.4;
-    if (game.state.camera.FOV > 4) game.state.camera.FOV = 4; 
+    if (game.state.camera.FOV < CONFIG.camera.minFOV) game.state.camera.FOV = CONFIG.camera.minFOV;
+    if (game.state.camera.FOV > CONFIG.camera.maxFOV) game.state.camera.FOV = CONFIG.camera.maxFOV; 
 })
 
-// Чето все равно сломано, надо пофиксить
 function getWorldMousePos() {
     const mousePosFixed = [];
 
     mousePosFixed[0] = mousePos[0] - canvas.width / 2;
     mousePosFixed[1] = mousePos[1] - canvas.height / 2;
 
-    //if (game.state.getName() != "game")
-    //    return mousePosFixed;
+    if (game.state.getName() != "game")
+        return mousePosFixed;
 
     const worldMousePos = [
-        (mousePosFixed[0] + game.state.camera.pos[0]) / game.state.camera.FOV,
-       (mousePosFixed[1] + game.state.camera.pos[1]) / game.state.camera.FOV
+        ((mousePosFixed[0] / game.state.camera.FOV) + game.state.camera.pos[0]),
+       ((mousePosFixed[1] / game.state.camera.FOV) + game.state.camera.pos[1])
     ];
 
     return worldMousePos;

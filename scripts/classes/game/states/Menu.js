@@ -49,6 +49,45 @@ class MenuState extends GameState {
         this.setTab(new TopTab(topPlayersFromServer))
     }
 
+    async showStats() {
+        const statsFromServer = await game.server.getStats();
+
+        this.setTab(new StatsTab(statsFromServer))
+    }
+
+    async showShop() {
+        this.setTab(new ShopTab({
+            lotes: [
+                {
+                    name: "default",
+                    id: 0,
+                    texture: "default",
+                    price: 0,
+                    isOwn: true,
+                },
+                {
+                    name: "blueOwned",
+                    id: 1,
+                    texture: "blue",
+                    price: 20,
+                    isOwn: true,
+                },
+                {
+                    name: "blue",
+                    id: 2,
+                    texture: "blue",
+                    price: 20,
+                    isOwn: false,
+                }
+            ],
+            usingId: 0
+        }))
+    }
+
+    showSettings() {
+        this.setTab(new SettingsTab());
+    }
+
     startSearchGame() {
         this.isGameSearching = true;
         this.gameSearch = setInterval(() => {
@@ -65,8 +104,16 @@ class MenuState extends GameState {
         
     }
 
-    keyboardPress(key) {
-        super.keyboardPress(key);
+    keyboardPress(code,key) {
+        this.tab.items.forEach((item) => {
+            if (item.isSelected) {
+                if (code == 'Backspace') {
+                    return item.erase()
+                }
+
+                item.add(key);
+            }
+        })
     }
 
     setTab(tab) {

@@ -1,5 +1,5 @@
 class Player extends Entity {
-    constructor({name, team, type, pos, state, direction, health, maxHealth, textureName}) {
+    constructor({name, team, type, pos, state, direction, health, maxHealth, data, textureName}) {
         super({type, pos, size:[80,80], state, direction, height: 2});
 
         this.textureName = textureName;
@@ -9,9 +9,11 @@ class Player extends Entity {
 
         this.health = health;
         this.maxHealth = maxHealth;
+        
+        this.data = data;
 
         this.healthBar = new BarUI({
-            pos: [-40, -45],
+            pos: [-40, -60],
             size: [80,15],
             max: maxHealth,
             value: health,
@@ -20,6 +22,17 @@ class Player extends Entity {
             text:`${health}/${maxHealth}`,
             fontSize: 10
         });
+
+        this.cooldownBar = new BarUI({
+            pos: [-40,-60],
+            size: [80,15],
+            max: data.cooldowns.maxShot,
+            value: data.cooldowns.shot,
+            color:`rgba(255,100,0,0.7)`,
+            emptyColor:`rgba(255,50,0,0.4)`,
+            text:`${data.cooldowns.shot}/${data.cooldowns.maxShot}`,
+            fontSize: 10
+        })
 
         this.textures = {
             moving: {
@@ -145,19 +158,40 @@ class Player extends Entity {
     
     renderUI() {
         super.renderUI();
+        this.cooldownBar.pos[0] = -this.size[0] / 2 * game.state.camera.FOV;
+        this.cooldownBar.pos[1] = (-this.size[1] / 2 - 5) * game.state.camera.FOV;
+
+        this.cooldownBar.size[0] = this.size[0] * game.state.camera.FOV;
+        this.cooldownBar.size[1] = 12 * game.state.camera.FOV;
+
+        const currReloadProgress = Math.round((this.data.cooldowns.maxShot - this.data.cooldowns.shot) / this.data.cooldowns.maxShot * 100)
+
+        this.cooldownBar.fontSize = 8 * game.state.camera.FOV;
+        this.cooldownBar.progress.current = this.data.cooldowns.maxShot - this.data.cooldowns.shot;
+        this.cooldownBar.progress.max = this.data.cooldowns.maxShot;
+        this.cooldownBar.text = `${currReloadProgress}%`;
+
+        let changeFromDefault = 0;
+
+        if (currReloadProgress != 100)
+            this.cooldownBar.render();
+        else
+            changeFromDefault = 6;
 
         ctx.font = `${15 * game.state.camera.FOV}px arial`;
         ctx.fillStyle = `white`;
         ctx.textAlign = ALIGN.CENTER;
-        ctx.fillText(this.name, 0 * game.state.camera.FOV, (-this.size[1] / 2 - 15) * game.state.camera.FOV);
+        ctx.fillText(this.name, 0 * game.state.camera.FOV, (-this.size[1] / 2 - 18 + changeFromDefault) * game.state.camera.FOV);
+        ctx.fillText(this.data.serverState, 0 * game.state.camera.FOV, (-this.size[1] / 2 + 20) * game.state.camera.FOV);
+        ctx.textAlign = ALIGN.LEFT;
 
         this.healthBar.pos[0] = -this.size[0] / 2 * game.state.camera.FOV;
-        this.healthBar.pos[1] = (-this.size[1] / 2 - 5) * game.state.camera.FOV;
+        this.healthBar.pos[1] = (-this.size[1] / 2 - 17 + changeFromDefault) * game.state.camera.FOV;
 
         this.healthBar.size[0] = this.size[0] * game.state.camera.FOV;
-        this.healthBar.size[1] = 15 * game.state.camera.FOV;
+        this.healthBar.size[1] = 12 * game.state.camera.FOV;
 
-        this.healthBar.fontSize = 10 * game.state.camera.FOV;
+        this.healthBar.fontSize = 8 * game.state.camera.FOV;
         this.healthBar.progress.current = this.health;
         this.healthBar.progress.max = this.maxHealth;
         this.healthBar.text = `${this.health}/${this.maxHealth}`;

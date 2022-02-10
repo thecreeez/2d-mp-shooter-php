@@ -16,6 +16,10 @@ class Database {
         $this->db = null;
     }
 
+    function query($query) {
+        return $this->db->query($query);
+    }
+
     function getUser($field, $value) {
         $query = 'SELECT * FROM users WHERE '.$field.' = "'.$value.'"';
 
@@ -96,18 +100,24 @@ class Database {
     }
 
     function getUsersEntityAndUserBySession($field, $value) {
-        $query = 'SELECT entity_users.*, users.name, users.rating FROM entity_users INNER JOIN users, sessions WHERE users.id = entity_users.users_id AND entity_users.'.$field.' = "'.$value.'"';
+        $query = 'SELECT entity_users.*, users.name, users.rating FROM entity_users INNER JOIN users WHERE users.id = entity_users.users_id AND entity_users.'.$field.' = "'.$value.'"';
 
         return $this->db->query($query);
     }
 
-    function addUserEntity($user, $sessions_id, $skin = 'default', $x = 0, $y = 0, $health = 100, $rotation = 0) {
-        $query = 'INSERT INTO entity_users (`users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`, `skin`) VALUES ('.$user['id'].', '.$sessions_id.', '.$x.', '.$y.', '.$health.', '.$rotation.', "'.$skin.'")';
+    function addUserEntity($user, $sessions_id, $x = 0, $y = 0, $health = 100, $rotation = 0) {
+        $query = 'INSERT INTO entity_users (`users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`) VALUES ('.$user['id'].', '.$sessions_id.', '.$x.', '.$y.', '.$health.', '.$rotation.')';
 
         return $this->db->query($query);
     }
 
-    function updateUserEntity($userE_id, $x, $y, $health, $rotation, $shotCooldown, $deaths, $kills) {
+    function addUserEntityCooldowns($user) {
+        $query = 'INSERT INTO cooldowns_users (users_id) VALUES ('.$user['id'].')';
+
+        return $this->db->query($query);
+    }
+
+    function updateUserEntity($userE_id, $x, $y, $health, $rotation) {
         $query = 'UPDATE entity_users SET ';
 
         $isFirst = true;
@@ -141,57 +151,99 @@ class Database {
             $isFirst = false;
         }
 
-        if ($shotCooldown !== 'nc') {
-            if (!$isFirst)
-                $query = $query.',';
-
-            $query = $query.'shotCooldown = '.$shotCooldown;
-            $isFirst = false;
-        }
-
-        if ($deaths !== 'nc') {
-            if (!$isFirst)
-                $query = $query.',';
-
-            $query = $query.'deaths = '.$deaths;
-            $isFirst = false;
-        }
-
-        if ($kills !== 'nc') {
-            if (!$isFirst)
-                $query = $query.',';
-
-            $query = $query.'kills = '.$kills;
-            $isFirst = false;
-        }
-
         $query = $query.' WHERE entity_users.id = '.$userE_id;
-
-        $this->db->query($query);
-        $arr = array();
-
-        $arr['req'] = $req;
-        $arr['x'] = $x;
-
-        return $arr;
-    }
-
-    function removeUserEntity($userE) {
-        $query = 'DELETE FROM entity_users WHERE `entity_users`.`id` = '.$userE['id'];
 
         return $this->db->query($query);
     }
 
-    function getBulletEntitiesBySession($sessions_id) {
-        $query = 'SELECT * FROM entity_bullets WHERE `entity_bullets`.`sessions_id` = '.$sessions_id;
+    function removeBulletEntity($bulletId) {
+        $query = 'DELETE FROM entity_bullets WHERE entity_bullets.id = '.$bulletId;
+
+        return $this->db->query($query);
+    }
+
+    function setUserEntityProperty($userE, $property, $value) {
+        $query = 'UPDATE entity_users SET '.$property.' = "'.$value.'" WHERE entity_users.users_id = '.$userE['users_id'];
+
+        return $this->db->query($query);
+    }
+
+    function removeUserEntity($userE) {
+        $query = 'DELETE FROM entity_users WHERE `users_id` = '.$userE['users_id'];
+
+        return $this->db->query($query);
+    }
+
+    function removeUserEntityCooldowns($userE) {
+        $query = 'DELETE FROM cooldowns_users WHERE users_id = '.$userE['users_id'];
+
+        return $this->db->query($query);
+    }
+
+    function getCooldownsByUserEntity($userE) {
+        $query = 'SELECT * FROM cooldowns_users WHERE users_id = '.$userE['users_id'];
+
+        return $this->db->query($query);
+    }
+
+    function getBulletEntitiesBySessionOrderByExpression($sessions_id, $expression) {
+        $query = 'SELECT * FROM entity_bullets WHERE `entity_bullets`.`sessions_id` = '.$sessions_id.' ORDER BY ('.$expression.') LIMIT 70';
 
         return $this->db->query($query);
     }
     
     function addBulletEntity($userE, $x, $y, $direction) {
-        $speed = 5;
-        $damage = 5;
+        $speed = 400;
+        $damage = 50;
         $query = 'INSERT INTO entity_bullets (`uuid`, `sessions_id`, `users_id`, `x`, `y`, `direction`, `damage`, `speed`) VALUES ("'.uniqid().'",'.$userE['sessions_id'].','.$userE['users_id'].','.$x.','.$y.','.$direction.','.$damage.','.$speed.')';
+
+        return $this->db->query($query);
+    }
+
+    function setBulletsPosBySessionId($sessions_id, $x, $y) {
+        $query = 'UPDATE entity_bullets SET x = '.$x.', y = '.$y.' WHERE sessions_id = '.$sessions_id;
+
+        return $this->db->query($query);
+    }
+
+    function deleteBulletsByPosByExpressionSessionId($sessions_id, $expression) {
+        $query = 'DELETE FROM entity_bullets WHERE sessions_id = '.$sessions_id.' AND ('.$expression.')';
+
+        return $this->db->query($query);
+    }
+
+    function addStat($userId) {
+        $query = 'INSERT INTO stats_users (users_id) VALUES ('.$userId.')';
+
+        return $this->db->query($query);
+    }
+
+    function addStatValue($usersId, $statName, $value) {
+        $query = 'UPDATE stats_users SET '.$statName.' = '.$statName.'+'.$value.' WHERE stats_users.users_id = '.$usersId;
+
+        return $this->db->query($query);
+    }
+
+    function setStatValue($usersId, $statName, $value) {
+        $query = 'UPDATE stats_users SET '.$statName.' = '.$value.' WHERE stats_users.users_id = '.$usersId;
+
+        return $this->db->query($query);
+    }
+
+    function getStatsByUserId($userId) {
+        $query = 'SELECT * FROM stats_users WHERE stats_users.users_id = '.$userId;
+
+        return $this->db->query($query);
+    }
+
+    function addMessage($sessions_id, $users_id, $content, $time) {
+        $query = 'INSERT INTO messages (sessions_id, users_id, content, time) VALUES ('.$sessions_id.','.$users_id.',"'.$content.'",'.$time.')';
+
+        return $this->db->query($query);
+    }
+
+    function getMessagesBySession($sessions_id) {
+        $query = 'SELECT messages.*, users.name FROM messages INNER JOIN users WHERE users.id = messages.users_id AND messages.sessions_id = '.$sessions_id;
 
         return $this->db->query($query);
     }

@@ -6,24 +6,26 @@ window.onresize = (ev) => {
 
     ctx.imageSmoothingEnabled = false;
 
+    const getTabData = (tab) => {
+        switch (tab.name) {
+            case "main": return 0;
+            case "sessions": return tab.sessions;
+            case "top": return tab.topPlayers;
+            case "stats": return tab.stats;
+        }
+    }
+
     switch (currentState) {
         case "menu": {
-            const tab = game.state.tab.name;
-            let sessions;
-            
-            if (tab == "sessions")
-                sessions = game.state.tab.sessions;
+            const tab = game.state.tab;
 
             game.state = new MenuState();
-
-            switch (tab) {
-                case "main": {
-                    game.state.setTab(new MainTab())
-                    break;
-                }
-                case "sessions": {
-                    game.state.setTab(new SessionTab(sessions));
-                }
+            switch (tab.name) {
+                case "main": return game.state.setTab(new MainTab(tab.data));
+                case "sessions": return game.state.setTab(new SessionTab(tab.data));
+                case "settings": return game.state.setTab(new SettingsTab(tab.data));
+                case "stats": return game.state.setTab(new StatsTab(tab.data));
+                case "top": return game.state.setTab(new TopTab(tab.data));
             }
             break;
         }

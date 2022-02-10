@@ -6,10 +6,14 @@ class Server {
     isAwaitingControl = false;
 
     async request(url) {
-        const res = await fetch(url);
-        const answer = await res.json();
+        try {
+            const res = await fetch(url);
+            const answer = await res.json();
 
-        return answer;
+            return answer;
+        } catch(e) {
+            
+        }
     } 
 
     async login(name, password) {
@@ -114,24 +118,30 @@ class Server {
             return;
 
         this.isAwaitingUpdate = true;
-        const data = await this.request(`api?method=updateGameData&token=${this.token}&rotation=${game.state.playerRotation}&time=${new Date().getTime()}`);
-        this.isAwaitingUpdate = false;
-        game.timer.pocketsGTick++;
 
-        if (game.state.getName() != "game")
-            return 1;
+        try {
+            const data = await this.request(`api?method=updateGameData&token=${this.token}&rotation=${game.state.playerRotation}&time=${new Date().getTime()}`);
+            this.isAwaitingUpdate = false;
+            game.timer.pocketsGTick++;
 
-        switch (data.status) {
-            case STATUS.OK: {
-                game.timer.pingCounter.push((new Date().getTime()) - data.data.time);
-                this.syncScene(data.data);
-                break;
+            if (game.state.getName() != "game")
+                return 1;
+
+            switch (data.status) {
+                case STATUS.OK: {
+                    game.timer.pingCounter.push((new Date().getTime()) - data.data.time);
+                    this.syncScene(data.data);
+                    break;
+                }
+
+                case STATUS.ERROR: {
+                    game.state.errorNotification(data.data, () => {game.state.hideError()});
+                    break;
+                }
             }
-
-            case STATUS.ERROR: {
-                game.state.errorNotification(data.data, () => {game.state.hideError()});
-                break;
-            }
+        } catch(e) {
+            this.isAwaitingUpdate = false;
+            console.error(`Error fetching data from server. ERR: ${e}`);
         }
     }
 
@@ -146,10 +156,11 @@ class Server {
             game.state.addEntity(entity);
         })
 
-        if (dataSession.helloMessage)
+        if (CONFIG.chat.showSessionHelloMessage && dataSession.helloMessage)
             game.state.chat.addSystemMessage(dataSession.helloMessage);
 
-        game.state.camera.follow(game.state.entities.get(player.name));
+        if (CONFIG.camera.isFollowPlayerByDefault)
+            game.state.camera.follow(game.state.entities.get(player.name));
     }
 
     syncScene(data) {
@@ -177,16 +188,20 @@ class Server {
             if (clientEntity.direction != serverEntity.direction)
                 clientEntity.direction = serverEntity.direction;
 
-            if (clientEntity.health != Number(serverEntity.health)) {
+            if (clientEntity.health != Number(serverEntity.health))
                 clientEntity.health = Number(serverEntity.health);
-            }
 
             if (clientEntity.textureName != serverEntity.skin)
                 clientEntity.setSkin(serverEntity.skin);
 
-            if (clientEntity.timeToChangeState < 1) {
+            if (clientEntity.timeToChangeState < 1)
                 clientEntity.state = "idle";
-            }
+
+            if (serverEntity.cooldowns)
+                clientEntity.data.cooldowns = serverEntity.cooldowns;
+
+            if (serverEntity.state)
+                clientEntity.data.serverState = serverEntity.state;
         })
 
         // Существует ли сущность на сервере, если нет - удаляем
@@ -217,7 +232,7 @@ class Server {
                     isExistOnClient = true;
             })
 
-            if (!isExistOnClient && clientChat[clientChat.length - 1].time < serverMessage.time)
+            if (CONFIG.chat.receiveMessagesFromPlayers && !isExistOnClient && clientChat[clientChat.length - 1].time < serverMessage.time)
                 game.state.chat.addMessage(serverMessage);
         })
 
@@ -288,8 +303,11 @@ class Server {
                 break;
             }
             case STATUS.ERROR: {
-                game.state = new AuthState();
-                game.state.errorNotification(answer.data, () => {game.state.hideError()});
+                game.getState();
+                setTimeout(() => {
+                    game.state.errorNotification(answer.data, () => {game.state.hideError()});
+                }, 1000);
+                
                 break;
             }    
         }
@@ -315,7 +333,18 @@ class Server {
         }
     }
 
+    async getStats() {
+        const data = await this.request(`api?method=getStats&token=${this.token}`);
+
+        switch (data.status) {
+            case STATUS.OK: {
+                return data.data;
+            }
+        }
+    }
+
     async sendChat(content) {
+        console.log("sending to chat: "+ content);
         const data = await this.request(`api?method=sendMessageOnChat&token=${this.token}&content=${content}`);
     }
 }
