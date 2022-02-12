@@ -106,6 +106,9 @@ class PlayState extends GameState {
     }
 
     render() {
+        if (!this.playerEntity)
+            return console.error(`PLAYER ENTITY ISNT EXIST ON SCENE.`);
+
         const renderArrow = () => {
             ctx.rotate((game.state.playerRotation + 90) * Math.PI / 180);
             ctx.drawImage(this.textures["arrow"].get(), -20 * game.state.camera.FOV, -60 * game.state.camera.FOV, 40 * game.state.camera.FOV, 20 * game.state.camera.FOV);

@@ -23,12 +23,11 @@ class HealthBar {
     }
 
     update() {
-        if (!this.player) {
-            this.player = game.state.entities.get(game.playerName);
-        }
+        if (!game.state.playerEntity)
+            return console.error(`PLAYER ENTITY ISNT EXIST ON SCENE.`)
 
-        this.bar.progress.max = this.player.maxHealth;
-        this.bar.progress.current = this.player.health;
-        this.bar.text = `${this.player.health}/${this.player.maxHealth}`;
+        this.bar.progress.max = game.state.playerEntity.maxHealth;
+        this.bar.progress.current = game.state.playerEntity.maxHealth;
+        this.bar.text = `${game.state.playerEntity.maxHealth}/${game.state.playerEntity.maxHealth}`;
     }
 }

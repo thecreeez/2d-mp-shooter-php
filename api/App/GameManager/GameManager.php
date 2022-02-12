@@ -53,6 +53,8 @@ class GameManager {
         $data['events'] = array();
         $data['serverUpdateDebug'] = $this->updateSession($userE, $session, $usersEntities, $bulletsEntities);
 
+        $data['usersEntities'] = $userE;
+
         return $data;
     }
 

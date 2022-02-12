@@ -50,13 +50,11 @@ render() {
 }
 
 update() {
+    if (!game.state.playerEntity)
+      return console.error(`PLAYER ENTITY ISNT EXIST ON SCENE.`)
 
-    if (!this.player) {
-        this.player = game.state.entities.get(game.playerName);
-    }
-
-    this.bar.progress.max = this.player.data.cooldowns.maxShot;
-    this.bar.progress.current = this.player.data.cooldowns.maxShot - this.player.data.cooldowns.shot;
+    this.bar.progress.max = game.state.playerEntity.data.cooldowns.maxShot;
+    this.bar.progress.current = game.state.playerEntity.data.cooldowns.maxShot - game.state.playerEntity.data.cooldowns.shot;
     this.bar.text = `${Math.round(this.bar.progress.current / this.bar.progress.max * 100)}%`;
 }
 }

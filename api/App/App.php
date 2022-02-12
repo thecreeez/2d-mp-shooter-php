@@ -258,13 +258,11 @@ class Application {
     public function debug($params) {
         $token = $params['token'];
 
-        $data = $this->gameManager->getData($userE, $session);
+        $user = $this->userManager->getByToken($token);
 
-        $userE = $this->userManager->getUserEntity('token', $token);
         return $this->answer->success(array(
-            'userE' => $userE,
             'token' => $token,
-            'query' => 'SELECT entity_users.* FROM entity_users INNER JOIN users WHERE users.token = "'.$token.'"'
+            'user' => $user
         ));
     }
 
