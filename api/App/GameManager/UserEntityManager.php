@@ -1,6 +1,7 @@
 <?php
 
 require_once('App/GameManager/StatManager.php');
+require_once('App/GameManager/UserEntityManager/PredicateManager.php');
 require_once('App/GameManager/Enums/PlayerStates.php');
 
 class UserEntityManager {
@@ -11,6 +12,7 @@ class UserEntityManager {
         $this->db = $db;
 
         $this->statManager = new StatManager($db);
+        $this->predicateManager = new PredicateManager();
     }
 
     function get($sessions_id) {
@@ -111,32 +113,22 @@ class UserEntityManager {
     }
 
     function updateStates($sessions_id) {
-      return $this->db->query('UPDATE
-      cooldowns_users,
-      entity_users
-  SET
-      entity_users.health = IF(
-          entity_users.state = "DEAD" AND respawn_cooldown = -1,
-          100,
-          entity_users.health
-      ),
-      entity_users.x = IF(
-          entity_users.state = "DEAD" AND respawn_cooldown = -1,
-          0,
-          entity_users.x
-      ),
-      entity_users.y = IF(
-          entity_users.state = "DEAD" AND respawn_cooldown = -1,
-          0,
-          entity_users.y
-      ),
-      entity_users.state = IF(
-          entity_users.state = "DEAD" AND respawn_cooldown = -1,
-          "ALIVE",
-          entity_users.state
-      )
-  WHERE
-      cooldowns_users.users_id = entity_users.users_id AND entity_users.sessions_id = '.$sessions_id);
+        $query = ("
+        UPDATE
+            cooldowns_users,
+            entity_users
+        SET
+            entity_users.health = ".$this->predicateManager->isRespawn(100, 'entity_users.health').",
+            entity_users.x = ".$this->predicateManager->isRespawn(0, 'entity_users.x').",
+            entity_users.y = ".$this->predicateManager->isRespawn(0, 'entity_users.y').",
+            entity_users.state = ".$this->predicateManager->isRespawn('"ALIVE"', 'entity_users.state')." 
+        WHERE
+            cooldowns_users.users_id = entity_users.users_id AND entity_users.sessions_id = ".$sessions_id
+        );
+
+        $query = preg_replace("/\r|\n/", "", $query);
+
+        return $query;
     }
 
     function updateLastRequest($userE) {

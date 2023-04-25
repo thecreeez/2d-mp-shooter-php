@@ -105,18 +105,6 @@ class Database {
         return $this->db->query($query);
     }
 
-    function addUserEntity($user, $sessions_id, $x = 0, $y = 0, $health = 100, $rotation = 0) {
-        $query = 'INSERT INTO entity_users (`users_id`, `sessions_id`, `x`, `y`, `health`, `rotation`) VALUES ('.$user['id'].', '.$sessions_id.', '.$x.', '.$y.', '.$health.', '.$rotation.')';
-
-        return $this->db->query($query);
-    }
-
-    function addUserEntityCooldowns($user) {
-        $query = 'INSERT INTO cooldowns_users (users_id) VALUES ('.$user['id'].')';
-
-        return $this->db->query($query);
-    }
-
     function updateUserEntity($userE_id, $x, $y, $health, $rotation) {
         $query = 'UPDATE entity_users SET ';
 

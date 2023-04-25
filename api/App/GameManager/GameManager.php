@@ -53,8 +53,6 @@ class GameManager {
         $data['events'] = array();
         $data['serverUpdateDebug'] = $this->updateSession($userE, $session, $usersEntities, $bulletsEntities);
 
-        $data['usersEntities'] = $userE;
-
         return $data;
     }
 
@@ -121,7 +119,6 @@ class GameManager {
 
         $this->bulletEntityManager->updateBullets($session['id'], $this->mapSize, $this->ups);
         $this->cooldownManager->update($session['id']);
-        $this->userEntityManager->updateStates($session['id']);
         $this->chatManager->clearOldMessages($session['id'], $currentTime);
 
         $collisions = $this->collisionManager->get($usersEntities, $bulletsEntities);
@@ -148,7 +145,7 @@ class GameManager {
             }
         }
 
-        return;
+        return $this->userEntityManager->updateStates($session['id']);
     }
 
     function createStats($user) {

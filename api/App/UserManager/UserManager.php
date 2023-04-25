@@ -22,8 +22,10 @@ class UserManager {
     }
 
     function addUserEntity($user, $sessions_id) {
-        $this->db->addUserEntityCooldowns($user);
-        return $this->db->addUserEntity($user, $sessions_id);
+        return $this->db->query('
+            INSERT INTO entity_users (`users_id`, `sessions_id`) VALUES ('.$user['id'].', '.$sessions_id.');
+            INSERT INTO cooldowns_users (`users_id`) VALUES ('.$user['id'].');
+            ');
     }
 
     function removeUserEntity($userE) {
